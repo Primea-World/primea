@@ -1,4 +1,4 @@
-# parallel_stats
+# primea
 
 A new Flutter project.
 

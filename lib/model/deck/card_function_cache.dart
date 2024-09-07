@@ -2,11 +2,11 @@ import 'package:primea/model/deck/card_function.dart';
 
 class CardFunctionCacheResults {
   final Map<int, CardFunction> cardFunctions;
-  final List<int> cardIds;
+  final List<int> misses;
 
   CardFunctionCacheResults()
       : cardFunctions = {},
-        cardIds = [];
+        misses = [];
 }
 
 class CardFunctionCache {
@@ -14,6 +14,15 @@ class CardFunctionCache {
 
   static CardFunction? get(int id) {
     return _cache[id];
+  }
+
+  static Map<int, CardFunction> getCardFunctions(Iterable<int> cardIds) {
+    return cardIds.fold({}, (acc, cardId) {
+      if (_cache.containsKey(cardId)) {
+        acc[cardId] = _cache[cardId]!;
+      }
+      return acc;
+    });
   }
 
   static void set(CardFunction cardFunction) {
@@ -26,13 +35,13 @@ class CardFunctionCache {
       if (_cache.containsKey(cardId)) {
         results.cardFunctions[cardId] = _cache[cardId]!;
       } else {
-        results.cardIds.add(cardId);
+        results.misses.add(cardId);
       }
     }
     return results;
   }
 
-  static void setAll(Map<int, CardFunction> cardFunctions) {
+  static void addAll(Map<int, CardFunction> cardFunctions) {
     _cache.addAll(cardFunctions);
   }
 }

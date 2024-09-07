@@ -1,6 +1,8 @@
 import 'package:primea/tracker/paragon.dart';
 
 class Season extends Object {
+  static const seasonsTableName = 'seasons';
+
   final int id;
   final String name;
   final String title;

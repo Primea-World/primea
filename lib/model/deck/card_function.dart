@@ -57,4 +57,18 @@ class CardFunction {
             ? CardSubtype.values.byName(json['subtype'])
             : null,
         expansion = CardExpansion.fromName(json['expansion']);
+
+  CardFunction.unknown(int card)
+      : id = card,
+        basename = "CB-$card",
+        title = 'Unknown',
+        parallel = ParallelType.universal,
+        rarity = CardRarity.common,
+        functionText = 'Unknown',
+        flavourText = 'Unknown',
+        cost = 0,
+        attack = 0,
+        health = 0,
+        cardType = CardType.unit,
+        expansion = CardExpansion.baseSet;
 }

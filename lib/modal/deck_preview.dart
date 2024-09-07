@@ -257,7 +257,7 @@ class _DeckPreviewState extends State<DeckPreview>
                         if (confirm == true) {
                           try {
                             await supabase
-                                .from(Deck.deckTableName)
+                                .from(Deck.decksTableName)
                                 .delete()
                                 .eq('name', widget.deck.name);
                           } on PostgrestException catch (e) {
@@ -268,7 +268,7 @@ class _DeckPreviewState extends State<DeckPreview>
                               'code': e.code,
                               'deck_id': widget.deck.id,
                             });
-                            await supabase.from(Deck.deckTableName).update(
+                            await supabase.from(Deck.decksTableName).update(
                                 {'hidden': true}).eq('id', widget.deck.id);
                           }
                           widget.onDelete();

@@ -7,7 +7,6 @@ import 'package:primea/primea.dart';
 import 'package:primea/route_information_parser.dart';
 import 'package:primea/router_delegate.dart';
 import 'package:primea/util/analytics.dart';
-import 'package:primea/v2/not_found.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const errorTable = 'errors';
@@ -77,6 +76,54 @@ class _AppState extends State<App> {
   late final PrimeaRouterDelegate _routerDelegate;
   late final PrimeaRouteInformationParser _routeInformationParser;
 
+  static const _textTheme = TextTheme(
+    displayLarge: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    displayMedium: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    displaySmall: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    headlineLarge: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    headlineMedium: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    headlineSmall: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    titleLarge: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    titleMedium: TextStyle(
+      fontVariations: [FontVariation('wght', 500)],
+    ),
+    titleSmall: TextStyle(
+      fontVariations: [FontVariation('wght', 500)],
+    ),
+    bodyLarge: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    bodyMedium: TextStyle(
+      fontVariations: [FontVariation('wght', 600)],
+    ),
+    bodySmall: TextStyle(
+      fontVariations: [FontVariation('wght', 400)],
+    ),
+    labelLarge: TextStyle(
+      fontVariations: [FontVariation('wght', 500)],
+    ),
+    labelMedium: TextStyle(
+      fontVariations: [FontVariation('wght', 500)],
+    ),
+    labelSmall: TextStyle(
+      fontVariations: [FontVariation('wght', 500)],
+    ),
+  );
+
   @override
   initState() {
     super.initState();
@@ -93,7 +140,7 @@ class _AppState extends State<App> {
       colorScheme: ColorScheme.fromSeed(
         seedColor: Colors.yellow,
         // seedColor: const Color(0xFFDEF141),
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
       ),
       cardTheme: const CardTheme(
         shape: ContinuousRectangleBorder(),
@@ -118,71 +165,58 @@ class _AppState extends State<App> {
         ),
       ),
       fontFamily: 'Krypton',
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        displayMedium: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        displaySmall: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        headlineLarge: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        headlineMedium: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        headlineSmall: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        titleLarge: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        titleMedium: TextStyle(
-          fontVariations: [FontVariation('wght', 500)],
-        ),
-        titleSmall: TextStyle(
-          fontVariations: [FontVariation('wght', 500)],
-        ),
-        bodyLarge: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        bodyMedium: TextStyle(
-          fontVariations: [FontVariation('wght', 600)],
-        ),
-        bodySmall: TextStyle(
-          fontVariations: [FontVariation('wght', 400)],
-        ),
-        labelLarge: TextStyle(
-          fontVariations: [FontVariation('wght', 500)],
-        ),
-        labelMedium: TextStyle(
-          fontVariations: [FontVariation('wght', 500)],
-        ),
-        labelSmall: TextStyle(
-          fontVariations: [FontVariation('wght', 500)],
-        ),
+      textTheme: _textTheme,
+    );
+
+    final darkTheme = ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.yellow,
+        // seedColor: const Color(0xFFDEF141),
+        brightness: Brightness.dark,
       ),
+      // cardTheme: const CardTheme(
+      //   shape: ContinuousRectangleBorder(),
+      // ),
+      // buttonTheme: const ButtonThemeData(
+      //   shape: LinearBorder(),
+      // ),
+      // iconButtonTheme: const IconButtonThemeData(
+      //   style: ButtonStyle(
+      //     shape: WidgetStatePropertyAll(
+      //       RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.zero,
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // textButtonTheme: const TextButtonThemeData(
+      //   style: ButtonStyle(
+      //     shape: WidgetStatePropertyAll(
+      //       LinearBorder(),
+      //     ),
+      //   ),
+      // ),
+      fontFamily: 'Krypton',
+      textTheme: _textTheme,
     );
 
     return SafeArea(
       child: MaterialApp.router(
         title: widget.title,
         theme: theme,
+        darkTheme: darkTheme,
         routerDelegate: _routerDelegate,
         routeInformationParser: _routeInformationParser,
         builder: (context, child) {
-          return Primea(
-            title: widget.title,
-            body: child ??
-                NotFound(
-                  setSelectedPage: () =>
-                      _routerDelegate.setSelectedPageIndex(0),
-                ),
-            selectedPageIndex: _routerDelegate.selectedPageIndex,
-            setSelectedPage: _routerDelegate.setSelectedPageIndex,
+          return ListenableBuilder(
+            listenable: _routerDelegate,
+            child: child,
+            builder: (context, child) => Primea(
+              title: widget.title,
+              body: child,
+              routerDelegate: _routerDelegate,
+            ),
           );
         },
       ),

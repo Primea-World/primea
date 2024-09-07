@@ -8,6 +8,7 @@ class DeckModel {
   final String name;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool hidden;
   final List<int> cards;
 
   const DeckModel({
@@ -15,6 +16,7 @@ class DeckModel {
     required this.name,
     required this.createdAt,
     required this.updatedAt,
+    required this.hidden,
     required this.cards,
   });
 
@@ -23,6 +25,7 @@ class DeckModel {
         name = json['name'],
         createdAt = DateTime.parse(json['created_at']),
         updatedAt = DateTime.parse(json['updated_at']),
+        hidden = json['hidden'],
         cards = List<int>.from(json['cards']);
 
   static Future<DeckModel> fromCode(
@@ -42,7 +45,7 @@ class DeckModel {
     if (id == null) {
       return DeckModel.fromJson(
         await supabase
-            .from(Deck.deckTableName)
+            .from(Deck.decksTableName)
             .insert({
               'name': name,
               'cards': parsedCodes,
@@ -53,7 +56,7 @@ class DeckModel {
     } else {
       return DeckModel.fromJson(
         await supabase
-            .from(Deck.deckTableName)
+            .from(Deck.decksTableName)
             .update({
               'name': name,
               'cards': parsedCodes,
@@ -68,14 +71,14 @@ class DeckModel {
 
   static Future<DeckModel> fromID(String id) async {
     final deckJson =
-        await supabase.from(Deck.deckTableName).select().eq('id', id).single();
+        await supabase.from(Deck.decksTableName).select().eq('id', id).single();
 
     return DeckModel.fromJson(deckJson);
   }
 
   static Future<Iterable<DeckModel>> fetchAll() async {
     final deckJson = await supabase
-        .from(Deck.deckTableName)
+        .from(Deck.decksTableName)
         .select()
         .eq('hidden', false)
         .order('updated_at', ascending: false);
@@ -90,23 +93,36 @@ class DeckModel {
       <int>{},
       (acc, deckModel) => acc..addAll(deckModel.cards),
     );
-    final cardFunctionsJson = await supabase
-        .from(CardFunction.cardFunctionTableName)
-        .select()
-        .inFilter('id', cardIds.toList());
+    final cacheResults = CardFunctionCache.getAll(cardIds);
 
-    final cardFunctions = Map.fromEntries(cardFunctionsJson.map(
-      (json) => MapEntry(
-        json['id'] as int,
-        CardFunction.fromJson(json),
-      ),
-    ));
+    if (cacheResults.misses.isNotEmpty) {
+      final cardFunctionsJson = await supabase
+          .from(CardFunction.cardFunctionTableName)
+          .select()
+          .inFilter('id', cardIds.toList());
+
+      final cardFunctions = Map.fromEntries(
+        cardFunctionsJson.map(
+          (json) => MapEntry(
+            json['id'] as int,
+            CardFunction.fromJson(json),
+          ),
+        ),
+      );
+
+      CardFunctionCache.addAll(cardFunctions);
+      cacheResults.cardFunctions.addAll(cardFunctions);
+    }
 
     return deckModels.map(
       (deckModel) => Deck(
         id: deckModel.id,
         name: deckModel.name,
-        cards: deckModel.cards.map((card) => cardFunctions[card]!),
+        cards: deckModel.cards.map(
+          (card) =>
+              cacheResults.cardFunctions[card] ?? CardFunction.unknown(card),
+        ),
+        hidden: deckModel.hidden,
         createdAt: deckModel.createdAt,
         updatedAt: deckModel.updatedAt,
       ),
@@ -116,28 +132,43 @@ class DeckModel {
   Future<Deck> toDeck() async {
     final cacheResults = CardFunctionCache.getAll(cards);
 
-    final cardFunctionsJson = await supabase
-        .from(CardFunction.cardFunctionTableName)
-        .select()
-        .inFilter('id', cacheResults.cardIds);
+    Map<int, CardFunction> cardFunctions = {};
 
-    final cardFunctions = Map.fromEntries(cardFunctionsJson.map(
-      (json) => MapEntry(
-        json['id'] as int,
-        CardFunction.fromJson(json),
-      ),
-    ));
-    // add cached results to cardFunctions
-    cardFunctions.addAll(cacheResults.cardFunctions);
+    if (cacheResults.misses.isNotEmpty) {
+      final cardFunctionsJson = await supabase
+          .from(CardFunction.cardFunctionTableName)
+          .select()
+          .inFilter('id', cacheResults.misses);
 
-    CardFunctionCache.setAll(cardFunctions);
+      cardFunctions = Map.fromEntries(cardFunctionsJson.map(
+        (json) => MapEntry(
+          json['id'] as int,
+          CardFunction.fromJson(json),
+        ),
+      ));
 
-    final cardList = cards.map((card) => cardFunctions[card]!);
+      // add cached results to cardFunctions
+      cardFunctions.addAll(cacheResults.cardFunctions);
+
+      CardFunctionCache.addAll(cardFunctions);
+    }
 
     return Deck(
       id: id,
       name: name,
-      cards: cardList,
+      cards: cards.map((card) => cardFunctions[card]!),
+      hidden: hidden,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
+  Deck toDeckSync(Map<int, CardFunction> cardFunctions) {
+    return Deck(
+      id: id,
+      name: name,
+      cards: cards.map((card) => cardFunctions[card]!),
+      hidden: hidden,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

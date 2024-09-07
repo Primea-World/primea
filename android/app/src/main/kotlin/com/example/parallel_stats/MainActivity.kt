@@ -1,4 +1,4 @@
-package com.example.parallel_stats
+package com.example.primea
 
 import io.flutter.embedding.android.FlutterActivity
 

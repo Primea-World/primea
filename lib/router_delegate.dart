@@ -1,42 +1,21 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:primea/route_information_parser.dart';
+import 'package:primea/v2/match/match_list.dart';
+import 'package:primea/v2/not_found.dart';
 
 class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<PrimeaRoutePath> {
   PrimeaRouterDelegate();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
 
   PrimeaPage _selectedTab = const PrimeaLandingPage();
 
-  int? get selectedPageIndex {
-    switch (_selectedTab) {
-      case PrimeaLandingPage _:
-        return 0;
-      case PrimeaMatchesPage _:
-        return 1;
-      case PrimeaDashboardPage _:
-        return 2;
-      default:
-        return null;
-    }
-  }
-
-  setSelectedPageIndex(int page) {
-    switch (page) {
-      case 0:
-        _selectedTab = const PrimeaLandingPage();
-        break;
-      case 1:
-        _selectedTab = const PrimeaMatchesPage();
-        break;
-      case 2:
-        _selectedTab = const PrimeaDashboardPage();
-        break;
-      default:
-        _selectedTab = const PrimeaUnknownPage();
-    }
+  void setSelectedPage(covariant PrimeaPage page) {
+    _selectedTab = page;
     notifyListeners();
   }
 
@@ -47,59 +26,40 @@ class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
     );
   }
 
-  final List<MaterialPage<dynamic>> pages = [
-    MaterialPage(
-      key: const ValueKey('HomePage'),
-      child: SingleChildScrollView(child: Container()),
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
-      pages: pages,
+      pages: [
+        MaterialPage(
+          key: const ValueKey('unknown'),
+          child: NotFound(
+              goHome: () => setSelectedPage(const PrimeaLandingPage())),
+        ),
+        if (_selectedTab is PrimeaLandingPage)
+          const MaterialPage(
+            key: ValueKey('primea'),
+            child: Center(child: Text("home")),
+          ),
+        if (_selectedTab is PrimeaMatchesPage)
+          const MaterialPage(
+            key: ValueKey('matches'),
+            child: MatchListWidget(),
+          ),
+        if (_selectedTab is PrimeaDashboardPage)
+          const MaterialPage(
+            key: ValueKey('dashboard'),
+            child: Center(child: Text("dashboard")),
+          ),
+      ],
       onDidRemovePage: (page) {
-        pages.remove(page);
-      },
-      onGenerateRoute: (RouteSettings settings) {
-        switch (settings.name) {
-          case '/':
-          case 'auth':
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (BuildContext context) {
-                return Container();
-              },
-            );
-          case 'matches':
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (BuildContext context) {
-                return Container();
-              },
-            );
-          case 'dashboard':
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (BuildContext context) {
-                return Container();
-              },
-            );
-          default:
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (BuildContext context) {
-                return Container();
-              },
-            );
-        }
+        navigatorKey.currentState?.widget.pages.remove(page);
+        notifyListeners();
       },
     );
   }
 
   @override
-  Future<void> setNewRoutePath(PrimeaRoutePath configuration) async {
-    _selectedTab = configuration.page;
-  }
+  Future<void> setNewRoutePath(PrimeaRoutePath configuration) async =>
+      SynchronousFuture(setSelectedPage(configuration.page));
 }

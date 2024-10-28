@@ -133,6 +133,7 @@ class _MatchSummaryState extends State<MatchSummary> {
                     playerTurn: widget.match.playerTurn == PlayerTurn.going1st
                         ? PlayerTurn.going2nd
                         : PlayerTurn.going1st,
+                    rank: widget.match.opponentRank,
                   ),
                 ),
               ),

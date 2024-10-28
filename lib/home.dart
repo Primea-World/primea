@@ -262,7 +262,7 @@ class _HomeState extends State<Home>
                   color: chosenParagon.parallel.color,
                 ),
                 onPressed: () async {
-                  await showModalBottomSheet(
+                  showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
                     useSafeArea: true,

@@ -81,7 +81,7 @@ class EchelonBorder extends ShapeBorder {
       canvas.drawLine(
         rect.topRight.translate(0, radius.y),
         rect.topRight.translate(-radius.x, 0),
-        topPaint..strokeWidth = topPaint.strokeWidth * 2,
+        topPaint,
       );
     }
     if (bottom != BorderSide.none) {
@@ -99,7 +99,7 @@ class EchelonBorder extends ShapeBorder {
       canvas.drawLine(
         rect.bottomRight.translate(0, -radius.y),
         rect.bottomRight.translate(-radius.x, 0),
-        bottomPaint..strokeWidth = bottomPaint.strokeWidth * 2,
+        bottomPaint,
       );
     }
     if (left != BorderSide.none) {
@@ -117,7 +117,7 @@ class EchelonBorder extends ShapeBorder {
       canvas.drawLine(
         rect.bottomLeft.translate(0, -radius.y),
         rect.bottomLeft.translate(radius.x, 0),
-        leftPaint..strokeWidth = leftPaint.strokeWidth * 2,
+        leftPaint,
       );
     }
     if (right != BorderSide.none) {
@@ -135,7 +135,7 @@ class EchelonBorder extends ShapeBorder {
       canvas.drawLine(
         rect.bottomRight.translate(0, -radius.y),
         rect.bottomRight.translate(-radius.x, 0),
-        rightPaint..strokeWidth = rightPaint.strokeWidth * 2,
+        rightPaint,
       );
     }
   }

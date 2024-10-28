@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:primea/model/match/player_rank.dart';
 import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/v2/border/echelon_border.dart';
@@ -8,11 +9,13 @@ import 'package:vector_graphics/vector_graphics.dart';
 class MatchParagon extends StatelessWidget {
   final Paragon paragon;
   final PlayerTurn playerTurn;
+  final Rank? rank;
 
   const MatchParagon({
     super.key,
     required this.paragon,
     required this.playerTurn,
+    this.rank,
   });
 
   @override
@@ -78,6 +81,35 @@ class MatchParagon extends StatelessWidget {
                   alignment: Alignment.topCenter,
                   fit: BoxFit.cover,
                   image: AssetImage(paragon.art ?? paragon.image!),
+                ),
+              ),
+            ),
+          if (rank != null)
+            Positioned(
+              top: 0,
+              right: 15,
+              child: Container(
+                width: 40,
+                padding: EdgeInsets.only(
+                  left: rank!.index <= Rank.platinum.index ? 6 : 0,
+                  right: rank!.index <= Rank.platinum.index ? 6 : 0,
+                  bottom: rank!.index <= Rank.platinum.index ? 6 : 2,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Tooltip(
+                  message: rank?.title,
+                  child: Image(
+                    image: ResizeImage(
+                      AssetImage(
+                        "assets/ranks/${rank?.name}.png",
+                      ),
+                      width: 104,
+                    ),
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),

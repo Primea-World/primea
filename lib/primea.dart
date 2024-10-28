@@ -70,7 +70,7 @@ class _PrimeaState extends State<Primea> {
             final Stream<Iterable<MatchModel>> seasonMatches = supabase
                 .from(MatchModel.gamesTableName)
                 .stream(primaryKey: ['id', 'user_id', 'created_at'])
-                .eq('season', 11)
+                .eq('season', currentSeason.id)
                 .order('game_time', ascending: false)
                 .asyncMap((event) async {
                   Iterable<MatchModel> matches = [];

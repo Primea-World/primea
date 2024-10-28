@@ -37,6 +37,9 @@ Future<void> main() async {
         ),
       );
 
+      supabase.functions.setAuth(
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcnlzZmdjdHZkdHZyeHBsZHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEyNDMyMjgsImV4cCI6MjAzNjgxOTIyOH0.7wcpER7Kch2A9zm5MiTKowd7IQ3Q2jSVkDytGzdTZHU');
+
       // Set up error handling
       FlutterError.onError = (details) {
         if (kReleaseMode) {
@@ -51,7 +54,7 @@ Future<void> main() async {
         return false;
       };
 
-      runApp(const App(title: 'Primea'));
+      runApp(const App(title: 'PRIMEA'));
     },
     (error, stackTrace) {
       final details = FlutterErrorDetails(exception: error, stack: stackTrace);
@@ -73,8 +76,42 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   late final PrimeaRouterDelegate _routerDelegate;
   late final PrimeaRouteInformationParser _routeInformationParser;
+
+  final ScrollController _scrollController = ScrollController();
+
+  static const _cardTheme = CardTheme(
+    shape: ContinuousRectangleBorder(),
+  );
+
+  static const _buttonTheme = ButtonThemeData(
+    shape: ContinuousRectangleBorder(),
+  );
+
+  static const _badgeTheme = BadgeThemeData(
+    backgroundColor: Color(0xFFF35A4F),
+  );
+
+  static const _iconButtonTheme = IconButtonThemeData(
+    style: ButtonStyle(
+      shape: WidgetStatePropertyAll(
+        ContinuousRectangleBorder(),
+      ),
+    ),
+  );
+
+  static const _textButtonTheme = TextButtonThemeData(
+    style: ButtonStyle(
+      shape: WidgetStatePropertyAll(
+        ContinuousRectangleBorder(),
+      ),
+    ),
+  );
+
+  static const _fontFamily = 'Krypton';
 
   static const _textTheme = TextTheme(
     displayLarge: TextStyle(
@@ -124,99 +161,66 @@ class _AppState extends State<App> {
     ),
   );
 
+  final lightTheme = ThemeData(
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFFDEF141),
+      primary: const Color(0xFFDEF141),
+      brightness: Brightness.light,
+    ),
+    cardTheme: _cardTheme,
+    buttonTheme: _buttonTheme,
+    badgeTheme: _badgeTheme,
+    iconButtonTheme: _iconButtonTheme,
+    textButtonTheme: _textButtonTheme,
+    fontFamily: _fontFamily,
+    textTheme: _textTheme,
+  );
+
+  final darkTheme = ThemeData(
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFFDEF141),
+      primary: const Color(0xFFDEF141),
+      brightness: Brightness.dark,
+    ),
+    cardTheme: _cardTheme,
+    buttonTheme: _buttonTheme,
+    badgeTheme: _badgeTheme,
+    iconButtonTheme: _iconButtonTheme,
+    textButtonTheme: _textButtonTheme,
+    fontFamily: _fontFamily,
+    textTheme: _textTheme,
+  );
+
   @override
   initState() {
-    super.initState();
-    _routerDelegate = PrimeaRouterDelegate();
+    _routerDelegate = PrimeaRouterDelegate(
+      _navigatorKey,
+      scrollController: _scrollController,
+    );
     _routeInformationParser = PrimeaRouteInformationParser();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     Analytics.instance.trackEvent("load", {"page": "main"});
 
-    final theme = ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.yellow,
-        // seedColor: const Color(0xFFDEF141),
-        brightness: Brightness.light,
-      ),
-      cardTheme: const CardTheme(
-        shape: ContinuousRectangleBorder(),
-      ),
-      buttonTheme: const ButtonThemeData(
-        shape: LinearBorder(),
-      ),
-      iconButtonTheme: const IconButtonThemeData(
-        style: ButtonStyle(
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
-          ),
-        ),
-      ),
-      textButtonTheme: const TextButtonThemeData(
-        style: ButtonStyle(
-          shape: WidgetStatePropertyAll(
-            LinearBorder(),
-          ),
-        ),
-      ),
-      fontFamily: 'Krypton',
-      textTheme: _textTheme,
-    );
-
-    final darkTheme = ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.yellow,
-        // seedColor: const Color(0xFFDEF141),
-        brightness: Brightness.dark,
-      ),
-      // cardTheme: const CardTheme(
-      //   shape: ContinuousRectangleBorder(),
-      // ),
-      // buttonTheme: const ButtonThemeData(
-      //   shape: LinearBorder(),
-      // ),
-      // iconButtonTheme: const IconButtonThemeData(
-      //   style: ButtonStyle(
-      //     shape: WidgetStatePropertyAll(
-      //       RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.zero,
-      //       ),
-      //     ),
-      //   ),
-      // ),
-      // textButtonTheme: const TextButtonThemeData(
-      //   style: ButtonStyle(
-      //     shape: WidgetStatePropertyAll(
-      //       LinearBorder(),
-      //     ),
-      //   ),
-      // ),
-      fontFamily: 'Krypton',
-      textTheme: _textTheme,
-    );
-
     return SafeArea(
       child: MaterialApp.router(
         title: widget.title,
-        theme: theme,
+        theme: lightTheme,
         darkTheme: darkTheme,
         routerDelegate: _routerDelegate,
         routeInformationParser: _routeInformationParser,
         builder: (context, child) {
-          return ListenableBuilder(
-            listenable: _routerDelegate,
-            child: child,
-            builder: (context, child) => Primea(
-              title: widget.title,
-              body: child,
-              routerDelegate: _routerDelegate,
-            ),
+          return Primea(
+            navigatorKey: _navigatorKey,
+            scrollController: _scrollController,
+            routerDelegate: _routerDelegate,
+            title: widget.title,
+            body: child,
           );
         },
       ),

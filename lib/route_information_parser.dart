@@ -2,49 +2,52 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 abstract class PrimeaPage {
+  String get title;
+
   const PrimeaPage();
 
-  static PrimeaPage fromIndex(int index) {
-    switch (index) {
-      case 0:
-        return const PrimeaLandingPage();
-      case 1:
-        return const PrimeaMatchesPage();
-      case 2:
-        return const PrimeaDashboardPage();
-      default:
-        return const PrimeaUnknownPage();
-    }
+  @override
+  operator ==(Object other) {
+    return other is PrimeaPage && other.runtimeType == runtimeType;
   }
 
-  static int? toIndex(PrimeaPage page) {
-    switch (page) {
-      case PrimeaLandingPage _:
-        return 0;
-      case PrimeaMatchesPage _:
-        return 1;
-      case PrimeaDashboardPage _:
-        return 2;
-      default:
-        return null;
-    }
-  }
+  @override
+  int get hashCode => runtimeType.hashCode;
 }
 
 class PrimeaUnknownPage extends PrimeaPage {
   const PrimeaUnknownPage();
+
+  @override
+  String get title => "UNKNOWN";
 }
 
-class PrimeaLandingPage extends PrimeaPage {
-  const PrimeaLandingPage();
+class PrimeaUplinkPage extends PrimeaPage {
+  const PrimeaUplinkPage();
+
+  @override
+  String get title => "UPLINK";
 }
 
 class PrimeaMatchesPage extends PrimeaPage {
   const PrimeaMatchesPage();
+
+  @override
+  String get title => "MATCHES";
 }
 
-class PrimeaDashboardPage extends PrimeaPage {
-  const PrimeaDashboardPage();
+class PrimeaConsolePage extends PrimeaPage {
+  const PrimeaConsolePage();
+
+  @override
+  String get title => "CONSOLE";
+}
+
+class PrimeaProfilePage extends PrimeaPage {
+  const PrimeaProfilePage();
+
+  @override
+  String get title => "PROFILE";
 }
 
 class PrimeaRoutePath {
@@ -56,11 +59,13 @@ class PrimeaRoutePath {
 
   const PrimeaRoutePath.unknown() : page = const PrimeaUnknownPage();
 
-  const PrimeaRoutePath.landing() : page = const PrimeaLandingPage();
+  const PrimeaRoutePath.landing() : page = const PrimeaUplinkPage();
 
   const PrimeaRoutePath.matches() : page = const PrimeaMatchesPage();
 
-  const PrimeaRoutePath.dashboard() : page = const PrimeaDashboardPage();
+  const PrimeaRoutePath.dashboard() : page = const PrimeaConsolePage();
+
+  const PrimeaRoutePath.profile() : page = const PrimeaProfilePage();
 }
 
 class PrimeaRouteInformationParser
@@ -91,11 +96,11 @@ class PrimeaRouteInformationParser
   @override
   RouteInformation? restoreRouteInformation(PrimeaRoutePath configuration) {
     switch (configuration.page) {
-      case PrimeaLandingPage _:
+      case PrimeaUplinkPage _:
         return RouteInformation(uri: Uri.parse("/"));
       case PrimeaMatchesPage _:
         return RouteInformation(uri: Uri.parse('/matches'));
-      case PrimeaDashboardPage _:
+      case PrimeaConsolePage _:
         return RouteInformation(uri: Uri.parse('/dashboard'));
       case PrimeaUnknownPage _:
       default:

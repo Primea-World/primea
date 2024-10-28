@@ -7,10 +7,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class OAuthProviderData {
   final String label;
   final String icon;
+  final String? scopes;
 
   const OAuthProviderData({
     required this.label,
     required this.icon,
+    this.scopes,
   });
 }
 
@@ -19,7 +21,7 @@ class OAuthButton extends StatelessWidget {
   final String icon;
   final OAuthProvider provider;
 
-  static const Map<OAuthProvider, OAuthProviderData> providers = {
+  static Map<OAuthProvider, OAuthProviderData> providers = {
     OAuthProvider.discord: OAuthProviderData(
       label: "Discord",
       icon: "assets/brands/discord/blue_mark.png",
@@ -27,6 +29,13 @@ class OAuthButton extends StatelessWidget {
     OAuthProvider.twitch: OAuthProviderData(
       label: "Twitch",
       icon: "assets/brands/twitch/glitch_flat_purple.png",
+      scopes: [
+        "user:read:chat",
+        "user:read:email",
+        "user:read:emotes",
+        "user:read:follows",
+        "user:write:chat",
+      ].join(" "),
     ),
   };
 
@@ -43,6 +52,7 @@ class OAuthButton extends StatelessWidget {
       onPressed: () async {
         await supabase.auth.signInWithOAuth(
           provider,
+          scopes: providers[provider]?.scopes,
           redirectTo:
               kIsWeb ? "/auth/callback" : "world.primea://auth/callback",
         );

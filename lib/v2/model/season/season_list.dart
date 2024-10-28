@@ -15,6 +15,10 @@ class SeasonList extends ChangeNotifier {
     );
   }
 
+  Season getSeason(int id) {
+    return _seasons.firstWhere((element) => element.id == id);
+  }
+
   SeasonList.fromJson(List<Map<String, dynamic>> json) {
     _seasons = json.map((e) => Season.fromJson(e));
   }
@@ -27,5 +31,10 @@ class SeasonList extends ChangeNotifier {
   void removeSeason(Season season) {
     _seasons = _seasons.where((element) => element != season);
     notifyListeners();
+  }
+
+  @override
+  String toString() {
+    return _seasons.toString();
   }
 }

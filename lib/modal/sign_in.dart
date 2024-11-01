@@ -42,9 +42,11 @@ class SignInModalState extends State<SignInModal> {
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Sign In',
+              'SIGN IN',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -70,7 +72,7 @@ class SignInModalState extends State<SignInModal> {
                   }
                 },
                 decoration: const InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'EMAIL',
                 ),
               ),
             ),
@@ -98,7 +100,7 @@ class SignInModalState extends State<SignInModal> {
                   }
                 },
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'PASSWORD',
                   errorMaxLines: 3,
                   suffixIcon: obscurePassword
                       ? IconButton(
@@ -123,13 +125,17 @@ class SignInModalState extends State<SignInModal> {
                 top: 16,
                 bottom: 16,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              child: Wrap(
+                alignment: WrapAlignment.spaceAround,
+                // spacing: 8,
+                runAlignment: WrapAlignment.spaceAround,
+                runSpacing: 8,
+                // mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   OutlinedButton.icon(
                     icon: const Icon(Icons.email_rounded),
                     label: const Text(
-                      'Sign Up',
+                      'SIGN UP',
                       style: TextStyle(
                         fontVariations: [FontVariation('wght', 600)],
                       ),
@@ -212,7 +218,7 @@ class SignInModalState extends State<SignInModal> {
                   FilledButton.icon(
                     icon: const Icon(Icons.email_rounded),
                     label: const Text(
-                      'Sign In',
+                      'SIGN IN  ',
                       style: TextStyle(
                         fontVariations: [FontVariation('wght', 600)],
                       ),
@@ -289,10 +295,10 @@ class SignInModalState extends State<SignInModal> {
     return SizedBox(
       width: 450,
       child: Card(
-        margin: const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        // margin: const EdgeInsets.all(8),
+        // shape: RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.circular(20),
+        // ),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -321,15 +327,15 @@ class SignInModalState extends State<SignInModal> {
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    alignment: WrapAlignment.center,
+                    alignment: WrapAlignment.spaceAround,
                     children: [
                       OAuthButton(
-                        label: "Sign in with Twitch",
+                        label: "SIGN IN WITH TWITCH   ",
                         icon: "assets/brands/twitch/glitch_flat_purple.png",
                         provider: OAuthProvider.twitch,
                       ),
                       OAuthButton(
-                        label: "Sign in with Discord",
+                        label: "SIGN IN WITH DISCORD",
                         icon: "assets/brands/discord/blue_mark.png",
                         provider: OAuthProvider.discord,
                       ),

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:primea/primea.dart';
 import 'package:primea/route_information_parser.dart';
 import 'package:primea/router_delegate.dart';
@@ -36,9 +37,6 @@ Future<void> main() async {
           detectSessionInUri: true,
         ),
       );
-
-      supabase.functions.setAuth(
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcnlzZmdjdHZkdHZyeHBsZHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEyNDMyMjgsImV4cCI6MjAzNjgxOTIyOH0.7wcpER7Kch2A9zm5MiTKowd7IQ3Q2jSVkDytGzdTZHU');
 
       // Set up error handling
       FlutterError.onError = (details) {
@@ -91,11 +89,23 @@ class _AppState extends State<App> {
     shape: ContinuousRectangleBorder(),
   );
 
-  static const _badgeTheme = BadgeThemeData(
-    backgroundColor: Color(0xFFF35A4F),
+  static const _iconButtonTheme = IconButtonThemeData(
+    style: ButtonStyle(
+      shape: WidgetStatePropertyAll(
+        ContinuousRectangleBorder(),
+      ),
+    ),
   );
 
-  static const _iconButtonTheme = IconButtonThemeData(
+  static const _filledButtonTheme = FilledButtonThemeData(
+    style: ButtonStyle(
+      shape: WidgetStatePropertyAll(
+        ContinuousRectangleBorder(),
+      ),
+    ),
+  );
+
+  static const _outlinedButtonTheme = OutlinedButtonThemeData(
     style: ButtonStyle(
       shape: WidgetStatePropertyAll(
         ContinuousRectangleBorder(),
@@ -111,86 +121,46 @@ class _AppState extends State<App> {
     ),
   );
 
-  static const _fontFamily = 'Krypton';
-
-  static const _textTheme = TextTheme(
-    displayLarge: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    displayMedium: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    displaySmall: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    headlineLarge: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    headlineMedium: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    headlineSmall: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    titleLarge: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    titleMedium: TextStyle(
-      fontVariations: [FontVariation('wght', 500)],
-    ),
-    titleSmall: TextStyle(
-      fontVariations: [FontVariation('wght', 500)],
-    ),
-    bodyLarge: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    bodyMedium: TextStyle(
-      fontVariations: [FontVariation('wght', 600)],
-    ),
-    bodySmall: TextStyle(
-      fontVariations: [FontVariation('wght', 400)],
-    ),
-    labelLarge: TextStyle(
-      fontVariations: [FontVariation('wght', 500)],
-    ),
-    labelMedium: TextStyle(
-      fontVariations: [FontVariation('wght', 500)],
-    ),
-    labelSmall: TextStyle(
-      fontVariations: [FontVariation('wght', 500)],
-    ),
-  );
-
-  final lightTheme = ThemeData(
+  ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFFDEF141),
       primary: const Color(0xFFDEF141),
+      dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
       brightness: Brightness.light,
     ),
     cardTheme: _cardTheme,
     buttonTheme: _buttonTheme,
-    badgeTheme: _badgeTheme,
     iconButtonTheme: _iconButtonTheme,
     textButtonTheme: _textButtonTheme,
-    fontFamily: _fontFamily,
-    textTheme: _textTheme,
+    filledButtonTheme: _filledButtonTheme,
+    outlinedButtonTheme: _outlinedButtonTheme,
   );
 
-  final darkTheme = ThemeData(
+  ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFFDEF141),
       primary: const Color(0xFFDEF141),
+      dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
       brightness: Brightness.dark,
     ),
     cardTheme: _cardTheme,
     buttonTheme: _buttonTheme,
-    badgeTheme: _badgeTheme,
     iconButtonTheme: _iconButtonTheme,
     textButtonTheme: _textButtonTheme,
-    fontFamily: _fontFamily,
-    textTheme: _textTheme,
+    filledButtonTheme: _filledButtonTheme,
+    outlinedButtonTheme: _outlinedButtonTheme,
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.fuchsia: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.iOS: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.linux: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.macOS: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.windows: PredictiveBackPageTransitionsBuilder(),
+      },
+    ),
   );
 
   @override
@@ -200,6 +170,12 @@ class _AppState extends State<App> {
       scrollController: _scrollController,
     );
     _routeInformationParser = PrimeaRouteInformationParser();
+
+    lightTheme = lightTheme.copyWith(
+        textTheme: GoogleFonts.chakraPetchTextTheme(lightTheme.textTheme));
+    darkTheme = darkTheme.copyWith(
+        textTheme: GoogleFonts.chakraPetchTextTheme(darkTheme.textTheme));
+
     super.initState();
   }
 

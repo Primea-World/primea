@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 abstract class PrimeaPage {
   String get title;
+  String get path => "/${title.toLowerCase()}";
 
   const PrimeaPage();
 
@@ -20,6 +21,9 @@ class PrimeaUnknownPage extends PrimeaPage {
 
   @override
   String get title => "UNKNOWN";
+
+  @override
+  String get path => "/404";
 }
 
 class PrimeaUplinkPage extends PrimeaPage {

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 class TwitchEmbed extends StatefulWidget {
   static const double aspectRatio = 4 / 3;
@@ -7,7 +7,7 @@ class TwitchEmbed extends StatefulWidget {
   final String parentSource;
 
   final int width, height;
-  final String channel;
+  final String? channel;
 
   TwitchEmbed({
     super.key,
@@ -73,14 +73,50 @@ class _TwitchEmbedState extends State<TwitchEmbed> {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: widget.width.toDouble() + 20,
-        maxHeight: widget.height.toDouble() + 20,
-      ),
-      child: AspectRatio(
-        aspectRatio: TwitchEmbed.aspectRatio,
-        child: Container(),
+    if (widget.channel == null) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: 720,
+        ),
+        child: AspectRatio(
+          aspectRatio: TwitchEmbed.aspectRatio,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF2A0845),
+                  Color(0xFF6441A5),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: Text(
+                  'STREAM: DISCONNECTED',
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return MouseRegion(
+      hitTestBehavior: HitTestBehavior.translucent,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: 720,
+        ),
+        child: AspectRatio(
+          aspectRatio: TwitchEmbed.aspectRatio,
+          child: Container(),
+        ),
       ),
     );
   }

@@ -5,11 +5,16 @@ class LabeledValue extends StatelessWidget {
   final String value;
   final Color borderColor;
 
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+
   const LabeledValue({
     super.key,
     required this.label,
     required this.value,
     required this.borderColor,
+    this.labelStyle,
+    this.valueStyle,
   });
 
   @override
@@ -28,19 +33,24 @@ class LabeledValue extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label.toUpperCase(),
-            style: Theme.of(context).textTheme.labelSmall,
-            textAlign: TextAlign.start,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label.toUpperCase(),
+              style: labelStyle ?? Theme.of(context).textTheme.labelSmall,
+              textAlign: TextAlign.start,
+            ),
           ),
-          Text(
-            value,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontVariations: [const FontVariation('wght', 600)]),
-            textAlign: TextAlign.start,
-          )
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: valueStyle ??
+                  Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontVariations: [const FontVariation('wght', 600)]),
+              textAlign: TextAlign.start,
+            ),
+          ),
         ],
       ),
     );

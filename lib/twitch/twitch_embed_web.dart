@@ -42,33 +42,30 @@ class TwitchEmbed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (channel == null) {
-      return MouseRegion(
-        hitTestBehavior: HitTestBehavior.translucent,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width,
-            maxHeight: 720,
-          ),
-          child: AspectRatio(
-            aspectRatio: TwitchEmbed.aspectRatio,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF2A0845),
-                    Color(0xFF6441A5),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: 720,
+        ),
+        child: AspectRatio(
+          aspectRatio: TwitchEmbed.aspectRatio,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF2A0845),
+                  Color(0xFF6441A5),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: Text(
-                    'STREAM: DISCONNECTED',
-                    style: Theme.of(context).textTheme.displayMedium,
-                  ),
+            ),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: Text(
+                  'STREAM: DISCONNECTED',
+                  style: Theme.of(context).textTheme.displayMedium,
                 ),
               ),
             ),
@@ -76,15 +73,18 @@ class TwitchEmbed extends StatelessWidget {
         ),
       );
     }
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width,
-        maxHeight: 720,
-      ),
-      child: AspectRatio(
-        aspectRatio: TwitchEmbed.aspectRatio,
-        child: HtmlElementView(
-          viewType: viewType,
+    return MouseRegion(
+      hitTestBehavior: HitTestBehavior.translucent,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: 720,
+        ),
+        child: AspectRatio(
+          aspectRatio: TwitchEmbed.aspectRatio,
+          child: HtmlElementView(
+            viewType: viewType,
+          ),
         ),
       ),
     );

@@ -86,7 +86,7 @@ class DeckModel {
     return deckJson.map((json) => DeckModel.fromJson(json));
   }
 
-  static Future<Iterable<Deck>> toDeckList(
+  static Future<Iterable<Deck>> toDecks(
     Iterable<DeckModel> deckModels,
   ) async {
     final cardIds = deckModels.fold(
@@ -132,7 +132,7 @@ class DeckModel {
   Future<Deck> toDeck() async {
     final cacheResults = CardFunctionCache.getAll(cards);
 
-    Map<int, CardFunction> cardFunctions = {};
+    Map<int, CardFunction> cardFunctions = cacheResults.cardFunctions;
 
     if (cacheResults.misses.isNotEmpty) {
       final cardFunctionsJson = await supabase
@@ -140,17 +140,17 @@ class DeckModel {
           .select()
           .inFilter('id', cacheResults.misses);
 
-      cardFunctions = Map.fromEntries(cardFunctionsJson.map(
+      final fetchedCards = Map.fromEntries(cardFunctionsJson.map(
         (json) => MapEntry(
           json['id'] as int,
           CardFunction.fromJson(json),
         ),
       ));
 
-      // add cached results to cardFunctions
-      cardFunctions.addAll(cacheResults.cardFunctions);
+      // add fetched results to cardFunctions
+      cardFunctions.addAll(fetchedCards);
 
-      CardFunctionCache.addAll(cardFunctions);
+      CardFunctionCache.addAll(fetchedCards);
     }
 
     return Deck(

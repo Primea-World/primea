@@ -186,11 +186,10 @@ class _NewMatchSliverHeaderState extends State<NewMatchSliverHeader>
                                                   paragon.art!,
                                                 ),
                                               ),
-                                              FittedBox(
-                                                child: Text(
-                                                  paragon.title,
-                                                  textAlign: TextAlign.center,
-                                                ),
+                                              Text(
+                                                paragon.title,
+                                                textAlign: TextAlign.center,
+                                                maxLines: 2,
                                               ),
                                             ],
                                           ),
@@ -338,84 +337,67 @@ class _NewMatchSliverHeaderState extends State<NewMatchSliverHeader>
             ],
           ),
         ),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          height: widget.shrinkOffset < (48 + 64) ? 64 : 0,
-          child: widget.shrinkOffset < (48 + 64)
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: FittedBox(
-                          child: SizedBox(
-                            width: 100,
-                            child: TextFormField(
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^(-|)\d*'),
-                                ),
-                              ],
-                              autocorrect: false,
-                              controller: _mmrController,
-                              decoration: const InputDecoration(
-                                labelText: '+/- MMR',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: FittedBox(
+                  child: SizedBox(
+                    width: 100,
+                    child: TextFormField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^(-|)\d*'),
                         ),
+                      ],
+                      autocorrect: false,
+                      controller: _mmrController,
+                      decoration: const InputDecoration(
+                        labelText: '+/- MMR',
+                        border: OutlineInputBorder(),
                       ),
-                      Flexible(
-                        child: FittedBox(
-                          child: SizedBox(
-                            width: 100,
-                            child: TextFormField(
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                signed: false,
-                                decimal: true,
-                              ),
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d*\.?\d*'),
-                                ),
-                              ],
-                              autocorrect: false,
-                              controller: _primeController,
-                              decoration: const InputDecoration(
-                                labelText: 'PRIME',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                )
-              : Container(
-                  height: 1,
                 ),
+              ),
+              Flexible(
+                child: FittedBox(
+                  child: SizedBox(
+                    width: 100,
+                    child: TextFormField(
+                      keyboardType: const TextInputType.numberWithOptions(
+                        signed: false,
+                        decimal: true,
+                      ),
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*'),
+                        ),
+                      ],
+                      autocorrect: false,
+                      controller: _primeController,
+                      decoration: const InputDecoration(
+                        labelText: 'PRIME',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          height: widget.shrinkOffset < 48 ? 48 : 0,
-          child: widget.shrinkOffset < 48
-              ? TextFormField(
-                  controller: _notesController,
-                  maxLines: 3,
-                  minLines: 1,
-                  decoration: const InputDecoration(
-                    labelText: "Notes",
-                    border: OutlineInputBorder(),
-                  ),
-                )
-              : Container(
-                  height: 1,
-                ),
+        TextFormField(
+          controller: _notesController,
+          maxLines: 3,
+          minLines: 1,
+          decoration: const InputDecoration(
+            labelText: "Notes",
+            border: OutlineInputBorder(),
+          ),
         ),
         Row(
           children: [

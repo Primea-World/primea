@@ -58,7 +58,7 @@ class _HomeState extends State<Home>
   MatchResults matchResults = MatchResults();
   late MatchList matchList;
 
-  Future<Iterable<Deck>> _fetchDecks() async => DeckModel.toDeckList(
+  Future<Iterable<Deck>> _fetchDecks() async => DeckModel.toDecks(
         await DeckModel.fetchAll(),
       );
   late final SliverDeckList<Deck> deckList;

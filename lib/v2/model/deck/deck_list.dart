@@ -6,11 +6,18 @@ import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/deck/deck_model.dart';
 
 class DeckList extends ChangeNotifier {
+  DeckList.empty() : _decks = [];
+
   DeckList({Iterable<Deck> decks = const []}) : _decks = decks;
 
   Iterable<Deck> _decks;
 
   Iterable<Deck> get decks => _decks;
+
+  void reset() {
+    _decks = [];
+    notifyListeners();
+  }
 
   Future<Deck?> findDeck(String id) async {
     try {
@@ -73,8 +80,8 @@ class DeckList extends ChangeNotifier {
     return deck;
   }
 
-  void addDeck(Deck deck) {
-    _decks.followedBy([deck]);
+  void addDecks(Iterable<Deck> decks) {
+    _decks = _decks.followedBy(decks);
     notifyListeners();
   }
 

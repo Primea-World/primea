@@ -20,8 +20,8 @@ class InheritedAccount extends InheritedModel<AccountAspect> {
     required this.decks,
   });
 
-  final Future<SeasonList> seasons;
-  final Future<DeckList>? decks;
+  final SeasonList seasons;
+  final DeckList decks;
   final SeasonMatches matches;
   // final HashMap<Season, MatchResults>? results;
 

@@ -8,7 +8,7 @@ class NewMatchSliverDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => 550;
 
   @override
-  double get minExtent => 316;
+  double get minExtent => 550;
 
   @override
   bool shouldRebuild(NewMatchSliverDelegate oldDelegate) => false;

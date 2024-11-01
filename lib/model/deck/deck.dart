@@ -38,16 +38,16 @@ class Deck {
           },
         );
 
-  // Deck.fromJson(Map<String, dynamic> json)
-  //     : id = json['id'],
-  //       name = json['name'],
-  //       createdAt = DateTime.parse(json['created_at']),
-  //       updatedAt = DateTime.parse(json['updated_at']),
-  //       hidden = json['hidden'],
-  //       cards = {
-  //         for (var card in json['cards'])
-  //           CardFunction.fromJson(card['id']): card['count'],
-  //       };
+  Deck.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        name = json['name'],
+        createdAt = DateTime.parse(json['created_at']),
+        updatedAt = DateTime.parse(json['updated_at']),
+        hidden = json['hidden'],
+        cards = {
+          for (var card in json['cards'])
+            CardFunction.fromJson(card['id']): card['count'],
+        };
 
   // static Future<Deck> byID(String id) async {
   //   final deckJson =

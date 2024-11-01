@@ -2,17 +2,23 @@ import 'package:flutter/foundation.dart';
 import 'package:primea/model/season/season.dart';
 
 class SeasonList extends ChangeNotifier {
+  SeasonList.empty();
+
   Iterable<Season> _seasons = [];
 
   Iterable<Season> get seasons => _seasons;
 
-  Season get currentSeason {
+  Season? get currentSeason {
     final now = DateTime.now().toUtc();
-    return _seasons.firstWhere(
-      (element) =>
-          now.isAfter(element.startDate) && now.isBefore(element.endDate),
-      orElse: () => _seasons.first,
-    );
+    try {
+      return _seasons.firstWhere(
+        (element) =>
+            now.isAfter(element.startDate) && now.isBefore(element.endDate),
+        orElse: () => _seasons.first,
+      );
+    } on StateError {
+      return null;
+    }
   }
 
   Season getSeason(int id) {
@@ -23,8 +29,8 @@ class SeasonList extends ChangeNotifier {
     _seasons = json.map((e) => Season.fromJson(e));
   }
 
-  void addSeason(Season season) {
-    _seasons.followedBy([season]);
+  void addSeasons(Iterable<Season> seasons) {
+    _seasons = _seasons.followedBy(seasons);
     notifyListeners();
   }
 

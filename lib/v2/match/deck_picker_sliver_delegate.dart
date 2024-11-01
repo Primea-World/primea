@@ -5,10 +5,10 @@ class DeckPickerSliverDelegate extends SliverPersistentHeaderDelegate {
   DeckPickerSliverDelegate();
 
   @override
-  double get maxExtent => 200;
+  double get maxExtent => 212;
 
   @override
-  double get minExtent => 200;
+  double get minExtent => 212;
 
   @override
   bool shouldRebuild(DeckPickerSliverDelegate oldDelegate) => false;

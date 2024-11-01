@@ -39,6 +39,41 @@ class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/':
+          case '/uplink':
+            setSelectedPage(const PrimeaUplinkPage());
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (context) => Uplink(
+                scrollController: _scrollController,
+              ),
+            );
+          case '/matches':
+            setSelectedPage(const PrimeaMatchesPage());
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (context) => MatchListWidget(),
+            );
+          case '/console':
+            setSelectedPage(const PrimeaConsolePage());
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (context) => Center(child: Text("console")),
+            );
+          default:
+            setSelectedPage(const PrimeaUnknownPage());
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (context) => NotFound(
+                goHome: () => setSelectedPage(
+                  const PrimeaUplinkPage(),
+                ),
+              ),
+            );
+        }
+      },
       pages: [
         MaterialPage(
           key: const ValueKey('unknown'),
@@ -48,7 +83,7 @@ class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
         if (_selectedPage is PrimeaUplinkPage)
           PrimeaRoutePage(
             key: ValueKey('uplink'),
-            child: Console(
+            child: Uplink(
               scrollController: _scrollController,
             ),
           ),
@@ -65,7 +100,6 @@ class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
       ],
       onDidRemovePage: (page) {
         navigatorKey.currentState?.widget.pages.remove(page);
-        notifyListeners();
       },
     );
   }

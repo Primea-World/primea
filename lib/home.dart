@@ -7,6 +7,7 @@ import 'package:primea/main.dart';
 import 'package:primea/modal/deck_preview.dart';
 import 'package:primea/modal/import.dart';
 import 'package:primea/modal/paragon_picker.dart';
+import 'package:primea/v2/match/deck_selector.dart';
 import 'package:primea/modal/profile.dart';
 import 'package:primea/modal/sign_in.dart';
 import 'package:primea/model/deck/deck.dart';

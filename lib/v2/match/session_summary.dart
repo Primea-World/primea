@@ -7,7 +7,7 @@ import 'package:primea/v2/border/echelon_border.dart';
 import 'package:primea/v2/match/labeled_value.dart';
 
 class SessionSummary extends StatefulWidget {
-  final List<MatchModel> session;
+  final Iterable<MatchModel> session;
   final void Function(bool isExpanded) onExpansionChanged;
 
   const SessionSummary({
@@ -94,7 +94,6 @@ class _SessionSummaryState extends State<SessionSummary>
         ),
       ),
       child: Row(
-        // crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             child: Table(

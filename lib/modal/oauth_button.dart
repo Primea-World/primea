@@ -48,13 +48,15 @@ class OAuthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const String redirectTo =
+        kIsWeb ? "/auth/callback" : "world.primea://auth/callback";
+
     return OutlinedButton.icon(
       onPressed: () async {
         await supabase.auth.signInWithOAuth(
           provider,
           scopes: providers[provider]?.scopes,
-          redirectTo:
-              kIsWeb ? "/auth/callback" : "world.primea://auth/callback",
+          redirectTo: redirectTo,
         );
         Analytics.instance.trackEvent("signIn", {
           "provider": provider.toString(),

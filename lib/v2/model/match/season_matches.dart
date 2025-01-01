@@ -42,7 +42,7 @@ class SeasonMatches extends ChangeNotifier {
           .from(MatchModel.gamesTableName)
           .select()
           .eq('season', season.id)
-          .order('game_time', ascending: false)
+          .order('game_time', ascending: true)
           .then((event) async {
         Iterable<MatchModel> matches = [];
         try {
@@ -83,7 +83,7 @@ class SeasonMatches extends ChangeNotifier {
     final season = _seasons.getSeason(newMatch.season!);
 
     if (_matches.containsKey(season)) {
-      _matches[season]?.followedBy([newMatch]);
+      _matches[season] = _matches[season]!.followedBy([newMatch]);
     } else {
       _matches[season] = [newMatch];
     }

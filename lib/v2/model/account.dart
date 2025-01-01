@@ -5,6 +5,7 @@ import 'package:primea/v2/model/season/season_list.dart';
 
 enum AccountAspect {
   matches,
+  decks,
   // results,
   seasons,
   summary,

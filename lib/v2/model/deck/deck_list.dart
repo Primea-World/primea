@@ -12,7 +12,7 @@ class DeckList extends ChangeNotifier {
 
   Iterable<Deck> _decks;
 
-  Iterable<Deck> get decks => _decks;
+  Iterable<Deck> get iterable => _decks;
 
   void reset() {
     _decks = [];

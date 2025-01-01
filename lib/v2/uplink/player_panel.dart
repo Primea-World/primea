@@ -7,7 +7,7 @@ import 'package:primea/util/breakpoint.dart';
 import 'package:primea/v2/match/labeled_value.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
-class PlayerPanel extends StatefulWidget {
+class PlayerPanel extends StatelessWidget {
   final String? user;
   final Season? season;
   final Iterable<MatchModel>? matches;
@@ -18,15 +18,6 @@ class PlayerPanel extends StatefulWidget {
     this.season,
     this.matches,
   });
-
-  @override
-  State<StatefulWidget> createState() => _PlayerPanelState();
-}
-
-class _PlayerPanelState extends State<PlayerPanel> {
-  late final seasonImage = AssetBytesLoader(
-    "assets/parallel_logos/vec/${widget.season?.parallel.title}.svg.vec",
-  ).loadBytes(context);
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +36,8 @@ class _PlayerPanelState extends State<PlayerPanel> {
                 BoxShadow(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   blurRadius: 24,
-                  offset: Offset(8, 8),
+                  offset: Offset(0, 0),
+                  blurStyle: BlurStyle.solid,
                 ),
               ],
             ),
@@ -66,10 +58,10 @@ class _PlayerPanelState extends State<PlayerPanel> {
                       width: 100,
                       height: 100,
                       AssetBytesLoader(
-                        "assets/parallel_logos/vec/${widget.season?.parallel.title ?? 'universal'}.svg.vec",
+                        "assets/parallel_logos/vec/${season?.parallel.title ?? 'universal'}.svg.vec",
                       ),
                       colorFilter: ColorFilter.mode(
-                        widget.season?.parallel.color.withAlpha(150) ??
+                        season?.parallel.color.withAlpha(150) ??
                             Theme.of(context)
                                 .colorScheme
                                 .onSurface
@@ -101,7 +93,7 @@ class _PlayerPanelState extends State<PlayerPanel> {
                                 style: Theme.of(context).textTheme.displaySmall,
                               ),
                               TextSpan(
-                                text: widget.user ?? "[UNKNOWN]",
+                                text: user ?? "[UNKNOWN]",
                                 style: Theme.of(context)
                                     .textTheme
                                     .displaySmall
@@ -122,7 +114,7 @@ class _PlayerPanelState extends State<PlayerPanel> {
                                     ),
                               ),
                               TextSpan(
-                                text: widget.season?.name ?? "[UNKNOWN]",
+                                text: season?.name ?? "[UNKNOWN]",
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall
@@ -169,8 +161,7 @@ class _PlayerPanelState extends State<PlayerPanel> {
                               TableCell(
                                 child: LabeledValue(
                                   label: "MATCHES",
-                                  value:
-                                      (widget.matches?.length ?? 0).toString(),
+                                  value: (matches?.length ?? 0).toString(),
                                   borderColor:
                                       Theme.of(context).colorScheme.primary,
                                   labelStyle: Theme.of(context)
@@ -186,7 +177,7 @@ class _PlayerPanelState extends State<PlayerPanel> {
                               TableCell(
                                 child: LabeledValue(
                                   label: "MATCHES (7D)",
-                                  value: (widget.matches?.fold(
+                                  value: (matches?.fold(
                                               0,
                                               (acc, match) => acc += match
                                                       .matchTime
@@ -216,7 +207,7 @@ class _PlayerPanelState extends State<PlayerPanel> {
                               TableCell(
                                 child: LabeledValue(
                                   label: "MATCHES WON",
-                                  value: (widget.matches?.fold(
+                                  value: (matches?.fold(
                                               0,
                                               (acc, match) => acc +=
                                                   match.result ==
@@ -240,7 +231,7 @@ class _PlayerPanelState extends State<PlayerPanel> {
                               TableCell(
                                 child: LabeledValue(
                                   label: "MATCHES LOST",
-                                  value: (widget.matches?.fold(
+                                  value: (matches?.fold(
                                               0,
                                               (acc, match) => acc +=
                                                   match.result ==

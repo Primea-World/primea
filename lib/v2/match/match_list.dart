@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:primea/inherited_session.dart';
 import 'package:primea/main.dart';
 import 'package:primea/model/match/match_model.dart';
+import 'package:primea/tracker/paragon.dart';
 import 'package:primea/v2/border/echelon_border.dart';
-import 'package:primea/v2/match/deck_picker_sliver_delegate.dart';
 import 'package:primea/v2/match/match_summary.dart';
 import 'package:primea/v2/match/new_match_sliver_delegate.dart';
 import 'package:primea/v2/match/session_summary.dart';
@@ -17,40 +18,22 @@ class MatchListWidget extends StatefulWidget {
 
 class _MatchListWidgetState extends State<MatchListWidget> {
   final List<GlobalKey<SliverAnimatedListState>> _listKeys = [];
+  final List<int> _listKeyLengths = [];
   final List<bool> _expanded = [];
 
   final maxExtent = 720.0;
 
   @override
   Widget build(BuildContext context) {
+    final session = InheritedSession.of(context).session;
     final seasons = InheritedAccount.of(context, AccountAspect.seasons).seasons;
     final matches = InheritedAccount.of(context, AccountAspect.matches).matches;
 
-    return FutureBuilder(
-      future: matches.fetchMatchesForSeason(seasons.currentSeason),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.active:
-          case ConnectionState.waiting:
-            return const Center(child: CircularProgressIndicator());
-          case ConnectionState.done:
-            if (snapshot.hasError) {
-              return Center(
-                child: Text("Matches Error: ${snapshot.error}"),
-              );
-            }
-            break;
-          case ConnectionState.none:
-            return const Center(child: CircularProgressIndicator());
-          default:
-            return Center(
-              child: Text(
-                  "Error: unknown connection state (${snapshot.connectionState}) (${matches.fetchMatchesForSeason(seasons.currentSeason)})"),
-            );
-        }
-
-        final sessions = snapshot.data?.fold(
-          <List<MatchModel>>[],
+    return ListenableBuilder(
+      listenable: matches,
+      builder: (context, _) {
+        final sessions = matches.getMatches(seasons.currentSeason)?.fold(
+          <Iterable<MatchModel>>[],
           (acc, match) {
             if (acc.isEmpty) {
               acc.add([match]);
@@ -59,7 +42,7 @@ class _MatchListWidgetState extends State<MatchListWidget> {
                 const Duration(hours: 4),
               ),
             )) {
-              acc.last.add(match);
+              acc.last = acc.last.followedBy([match]);
             } else {
               acc.add([match]);
             }
@@ -90,7 +73,7 @@ class _MatchListWidgetState extends State<MatchListWidget> {
               (index) {
                 final session = sessions!.elementAt(index);
                 final entry = GlobalKey<SliverAnimatedListState>();
-                print(session.length);
+
                 if (_expanded.elementAt(index)) {
                   entry.currentState?.insertAllItems(
                     0,
@@ -102,15 +85,48 @@ class _MatchListWidgetState extends State<MatchListWidget> {
               },
             ),
           );
+          _listKeyLengths.addAll(List.generate(sessions?.length ?? 0, (index) {
+            return sessions!.elementAt(index).length;
+          }));
         }
+
+        for (var i = 0; i < (sessions?.length ?? 0); i++) {
+          final diff =
+              sessions!.elementAt(i).length - _listKeyLengths.elementAt(i);
+          if (diff.isNegative) {
+            for (var _ in List.filled(diff.abs(), 0)) {}
+            // _listKeys.elementAt(i).currentState?.rem(
+            //   0,
+            //   (context, animation) {
+            //     return FadeTransition(
+            //       opacity: animation,
+            //       child: SizeTransition(
+            //         sizeFactor: animation,
+            //         child: MatchSummary(
+            //           match: sessions.elementAt(i).elementAt(0),
+            //         ),
+            //       ),
+            //     );
+            //   },
+            //   duration: const Duration(milliseconds: 150),
+            // );
+            // _listKeys.elementAt(i).currentState
+            // _listKeys.first.currentState
+          }
+          // _listKeys.first.currentState
+        }
+
+        final paragon = session!.user.userMetadata?['paragon'] == null
+            ? null
+            : Paragon.values.byName(session.user.userMetadata?['paragon']);
 
         return CustomScrollView(
           slivers: [
             SliverPersistentHeader(
-              delegate: DeckPickerSliverDelegate(),
-            ),
-            SliverPersistentHeader(
-              delegate: NewMatchSliverDelegate(),
+              delegate: NewMatchSliverDelegate(
+                paragon,
+                session.user.userMetadata?['deck'],
+              ),
             ),
             if (sessions != null)
               ...sessions.indexed.map(

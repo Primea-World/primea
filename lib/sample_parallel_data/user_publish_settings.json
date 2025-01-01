@@ -1,0 +1,31 @@
+{
+  "settings": [
+    {
+      "game_type": "ranked",
+      "publish_game_overview": true,
+      "include_deck_content": true,
+      "include_game_stream": false,
+      "include_primary_wallet": false,
+      "id": "b7247210-c695-4e89-956b-b8658c7cb756",
+      "player_id": 64530
+    },
+    {
+      "game_type": "private",
+      "publish_game_overview": true,
+      "include_deck_content": true,
+      "include_game_stream": false,
+      "include_primary_wallet": false,
+      "id": "ad8e6f69-a0f1-4267-ab1e-b4e0c12abbed",
+      "player_id": 64530
+    },
+    {
+      "game_type": "training_bot",
+      "publish_game_overview": false,
+      "include_deck_content": false,
+      "include_game_stream": false,
+      "include_primary_wallet": false,
+      "id": "d8f1bf21-fee3-481d-b2c4-79a7a48a4a83",
+      "player_id": 64530
+    }
+  ]
+}

@@ -31,6 +31,9 @@ class PrimeaUplinkPage extends PrimeaPage {
 
   @override
   String get title => "UPLINK";
+
+  @override
+  String get path => "/";
 }
 
 class PrimeaMatchesPage extends PrimeaPage {
@@ -92,6 +95,8 @@ class PrimeaRouteInformationParser
         return Future.value(const PrimeaRoutePath.matches());
       case 'dashboard':
         return Future.value(const PrimeaRoutePath.dashboard());
+      case 'profile':
+        return Future.value(const PrimeaRoutePath.profile());
       default:
         return Future.value(const PrimeaRoutePath.unknown());
     }
@@ -100,12 +105,14 @@ class PrimeaRouteInformationParser
   @override
   RouteInformation? restoreRouteInformation(PrimeaRoutePath configuration) {
     switch (configuration.page) {
-      case PrimeaUplinkPage _:
-        return RouteInformation(uri: Uri.parse("/"));
-      case PrimeaMatchesPage _:
-        return RouteInformation(uri: Uri.parse('/matches'));
-      case PrimeaConsolePage _:
-        return RouteInformation(uri: Uri.parse('/dashboard'));
+      case PrimeaUplinkPage page:
+        return RouteInformation(uri: Uri.parse(page.path));
+      case PrimeaMatchesPage page:
+        return RouteInformation(uri: Uri.parse(page.path));
+      case PrimeaConsolePage page:
+        return RouteInformation(uri: Uri.parse(page.path));
+      case PrimeaProfilePage page:
+        return RouteInformation(uri: Uri.parse(page.path));
       case PrimeaUnknownPage _:
       default:
         return RouteInformation(uri: Uri.parse('/404'));

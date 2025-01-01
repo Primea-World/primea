@@ -137,41 +137,41 @@ class StackedLineGraph extends CustomPainter {
       }
     }
 
-    Path path = Path();
+    // Path path = Path();
 
-    // Start the path at the first point
-    path.moveTo(overallPathOffsets[0].dx, overallPathOffsets[0].dy);
+    // // Start the path at the first point
+    // path.moveTo(overallPathOffsets[0].dx, overallPathOffsets[0].dy);
 
-    for (int i = 0; i < overallPathOffsets.length - 1; i++) {
-      Offset p0 = overallPathOffsets[i];
-      Offset p1 = overallPathOffsets[i + 1];
-      Offset controlPoint1 = Offset(
-        (p0.dx + p1.dx) / 2,
-        p0.dy,
-      );
-      Offset controlPoint2 = Offset(
-        (p0.dx + p1.dx) / 2,
-        p1.dy,
-      );
+    // for (int i = 0; i < overallPathOffsets.length - 1; i++) {
+    //   Offset p0 = overallPathOffsets[i];
+    //   Offset p1 = overallPathOffsets[i + 1];
+    //   Offset controlPoint1 = Offset(
+    //     (p0.dx + p1.dx) / 2,
+    //     p0.dy,
+    //   );
+    //   Offset controlPoint2 = Offset(
+    //     (p0.dx + p1.dx) / 2,
+    //     p1.dy,
+    //   );
 
-      path.cubicTo(
-        controlPoint1.dx,
-        controlPoint1.dy * -rowHeight,
-        controlPoint2.dx,
-        controlPoint2.dy * -rowHeight,
-        p1.dx,
-        p1.dy * -rowHeight,
-      );
-    }
+    //   path.cubicTo(
+    //     controlPoint1.dx,
+    //     controlPoint1.dy * -rowHeight,
+    //     controlPoint2.dx,
+    //     controlPoint2.dy * -rowHeight,
+    //     p1.dx,
+    //     p1.dy * -rowHeight,
+    //   );
+    // }
 
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = Colors.white70
-        ..strokeWidth = 3
-        ..strokeCap = StrokeCap.round
-        ..style = PaintingStyle.stroke,
-    );
+    // canvas.drawPath(
+    //   path,
+    //   Paint()
+    //     ..color = Colors.white70
+    //     ..strokeWidth = 3
+    //     ..strokeCap = StrokeCap.round
+    //     ..style = PaintingStyle.stroke,
+    // );
   }
 
   @override

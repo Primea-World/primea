@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:primea/v2/console/console.dart';
+import 'package:primea/v2/profile/profile.dart';
 import 'package:primea/primea_route_page.dart';
 import 'package:primea/route_information_parser.dart';
 import 'package:primea/v2/uplink/uplink.dart';
@@ -60,7 +62,13 @@ class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
             setSelectedPage(const PrimeaConsolePage());
             return MaterialPageRoute(
               settings: settings,
-              builder: (context) => Center(child: Text("console")),
+              builder: (context) => Console(),
+            );
+          case '/profile':
+            setSelectedPage(const PrimeaProfilePage());
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (context) => Profile(),
             );
           default:
             setSelectedPage(const PrimeaUnknownPage());
@@ -92,10 +100,15 @@ class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
             key: ValueKey('matches'),
             child: MatchListWidget(),
           ),
+        if (_selectedPage is PrimeaProfilePage)
+          const PrimeaRoutePage(
+            key: ValueKey('matches'),
+            child: Profile(),
+          ),
         if (_selectedPage is PrimeaConsolePage)
           const PrimeaRoutePage(
             key: ValueKey('console'),
-            child: Center(child: Text("console")),
+            child: Console(),
           ),
       ],
       onDidRemovePage: (page) {

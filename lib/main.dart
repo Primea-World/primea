@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:primea/primea.dart';
 import 'package:primea/route_information_parser.dart';
@@ -27,6 +28,9 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      if (kIsWeb) {
+        usePathUrlStrategy();
+      }
 
       // Initialize Supabase
       await Supabase.initialize(

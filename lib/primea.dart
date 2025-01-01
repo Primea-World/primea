@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:primea/inherited_session.dart';
@@ -6,6 +7,7 @@ import 'package:primea/main.dart';
 import 'package:primea/modal/sign_in.dart';
 import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/deck/deck_model.dart';
+import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/season/season.dart';
 import 'package:primea/route_information_parser.dart';
 import 'package:primea/router_delegate.dart';
@@ -73,83 +75,86 @@ class _PrimeaState extends State<Primea> with SingleTickerProviderStateMixin {
   late final _appBarActions = [
     PrimeaUplinkPage(),
     PrimeaMatchesPage(),
-    // TODO: Implement these pages
-    // PrimeaConsolePage(),
-    // PrimeaProfilePage(),
+    PrimeaConsolePage(),
+    PrimeaProfilePage(),
   ];
 
   late final Map<PrimeaPage, bool> _appBarActionStates = {
     for (final action in _appBarActions) action: false
   };
 
-  // RealtimeChannel subscribeMatches() {
-  //   return supabase
-  //       .channel(
-  //           "public.${MatchModel.gamesTableName}.${Random(DateTime.now().microsecondsSinceEpoch).nextInt(1 << 32)}")
-  //       .onPostgresChanges(
-  //         event: PostgresChangeEvent.all,
-  //         schema: "public",
-  //         table: MatchModel.gamesTableName,
-  //         // TODO: filter this so other users deletions don't trigger this subscription
-  //         callback: (payload) async {
-  //           print("payload: $payload");
-  //           switch (payload.eventType) {
-  //             case PostgresChangeEvent.all:
-  //               FlutterError.reportError(
-  //                 FlutterErrorDetails(
-  //                   exception: Exception(
-  //                       "cannot handle PostgresChangeEvent.all from public.${MatchModel.gamesTableName} ($payload)"),
-  //                 ),
-  //               );
-  //               break;
-  //             case PostgresChangeEvent.insert:
-  //               final newMatch = MatchModel.fromJson(payload.newRecord);
-  //               _matches?.addMatch(newMatch);
-  //             case PostgresChangeEvent.update:
-  //             // TODO: Handle this case.
-  //             case PostgresChangeEvent.delete:
-  //             // TODO: Handle this case.
-  //           }
-  //         },
-  //       )
-  //       .subscribe(
-  //           // (status, payload) async {
-  //           //   switch (status) {
-  //           //     case RealtimeSubscribeStatus.subscribed:
-  //           //       if (kDebugMode) {
-  //           //         print("subscribed to games");
-  //           //       }
-  //           //       break;
-  //           //     case RealtimeSubscribeStatus.channelError:
-  //           //       FlutterError.reportError(
-  //           //         FlutterErrorDetails(
-  //           //           exception: payload ??
-  //           //               Exception(
-  //           //                   "unknown error with public.${MatchModel.gamesTableName} subscription"),
-  //           //         ),
-  //           //       );
-  //           //       await matchesSubscription.unsubscribe();
-  //           //       matchesSubscription = subscribeMatches();
-  //           //       break;
-  //           //     case RealtimeSubscribeStatus.closed:
-  //           //       // if (kDebugMode) {
-  //           //       //   print("channel closed");
-  //           //       // }
-  //           //       await matchesSubscription.unsubscribe();
-  //           //       Future.delayed(Durations.short1, () {
-  //           //         matchesSubscription = subscribeMatches();
-  //           //       });
-  //           //       break;
-  //           //     case RealtimeSubscribeStatus.timedOut:
-  //           //       if (kDebugMode) {
-  //           //         print("channel timed out");
-  //           //       }
-  //           //       await matchesSubscription.unsubscribe();
-  //           //       matchesSubscription = subscribeMatches();
-  //           //   }
-  //           // },
-  //           );
-  // }
+  RealtimeChannel subscribeMatches() {
+    return supabase
+        .channel(
+            "public.${MatchModel.gamesTableName}.${Random(DateTime.now().microsecondsSinceEpoch).nextInt(1 << 16)}")
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: "public",
+          table: MatchModel.gamesTableName,
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: session?.user.id,
+          ),
+          callback: (payload) async {
+            print("payload: $payload");
+            switch (payload.eventType) {
+              case PostgresChangeEvent.all:
+                FlutterError.reportError(
+                  FlutterErrorDetails(
+                    exception: Exception(
+                        "cannot handle PostgresChangeEvent.all from public.${MatchModel.gamesTableName} ($payload)"),
+                  ),
+                );
+                break;
+              case PostgresChangeEvent.insert:
+                final newMatch = MatchModel.fromJson(payload.newRecord);
+                _matches.addMatch(newMatch);
+              case PostgresChangeEvent.update:
+              // TODO: Handle this case.
+              case PostgresChangeEvent.delete:
+              // TODO: Handle this case.
+            }
+          },
+        )
+        .subscribe(
+            // (status, payload) async {
+            //   switch (status) {
+            //     case RealtimeSubscribeStatus.subscribed:
+            //       if (kDebugMode) {
+            //         print("subscribed to games");
+            //       }
+            //       break;
+            //     case RealtimeSubscribeStatus.channelError:
+            //       FlutterError.reportError(
+            //         FlutterErrorDetails(
+            //           exception: payload ??
+            //               Exception(
+            //                   "unknown error with public.${MatchModel.gamesTableName} subscription"),
+            //         ),
+            //       );
+            //       await matchesSubscription.unsubscribe();
+            //       matchesSubscription = subscribeMatches();
+            //       break;
+            //     case RealtimeSubscribeStatus.closed:
+            //       // if (kDebugMode) {
+            //       //   print("channel closed");
+            //       // }
+            //       await matchesSubscription.unsubscribe();
+            //       Future.delayed(Durations.short1, () {
+            //         matchesSubscription = subscribeMatches();
+            //       });
+            //       break;
+            //     case RealtimeSubscribeStatus.timedOut:
+            //       if (kDebugMode) {
+            //         print("channel timed out");
+            //       }
+            //       await matchesSubscription.unsubscribe();
+            //       matchesSubscription = subscribeMatches();
+            //   }
+            // },
+            );
+  }
 
   void handleAuthStateChange(AuthState data) async {
     Analytics.instance.trackEvent(
@@ -199,7 +204,7 @@ class _PrimeaState extends State<Primea> with SingleTickerProviderStateMixin {
       _seasonList.addSeasons(seasons);
     });
 
-    // matchesSubscription = subscribeMatches();
+    matchesSubscription = subscribeMatches();
     super.initState();
   }
 

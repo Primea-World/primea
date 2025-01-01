@@ -17,13 +17,19 @@ import 'package:primea/v2/border/echelon_border.dart';
 import 'package:primea/v2/footer.dart';
 import 'package:primea/v2/match/labeled_value.dart';
 import 'package:primea/v2/model/account.dart';
-import 'package:primea/v2/model/season/season_list.dart';
 import 'package:primea/v2/uplink/paragon_insights.dart';
 import 'package:primea/v2/uplink/player_panel.dart';
 import 'package:primea/v2/uplink/stream_response.dart';
 import 'package:primea/v2/uplink/twitch_stream_card.dart';
 import 'package:primea/v2/logo/logo_painter.dart';
 import 'package:vector_graphics/vector_graphics.dart';
+
+// TODO: DELETE
+class Response {
+  final String body;
+
+  Response({required this.body});
+}
 
 class Uplink extends StatefulWidget {
   final ScrollController scrollController;
@@ -67,7 +73,7 @@ class _UplinkState extends State<Uplink>
     ],
   );
 
-  late final SeasonList _seasons = InheritedAccount.of(context).seasons;
+  // late final SeasonList _seasons = InheritedAccount.of(context).seasons;
   late final Future<Iterable<ParagonStats>> _paragonStats = _getParagonStats();
 
   final _parallels = ParallelType.values.where(
@@ -86,14 +92,16 @@ class _UplinkState extends State<Uplink>
   Iterable<StreamResponse> _streams = [];
   // Iterable<ClipResponse> _clips = [];
 
-  late final _content = http.get(
-      Uri.parse(
-        "$_baseUrl/functions/v1/twitch_content",
-      ),
-      headers: {
-        "Authorization":
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcnlzZmdjdHZkdHZyeHBsZHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEyNDMyMjgsImV4cCI6MjAzNjgxOTIyOH0.7wcpER7Kch2A9zm5MiTKowd7IQ3Q2jSVkDytGzdTZHU"
-      });
+  final _content = Future.value(Response(body: '{"streams":[]}'));
+
+  // late final _content = http.get(
+  //     Uri.parse(
+  //       "$_baseUrl/functions/v1/twitch_content",
+  //     ),
+  //     headers: {
+  //       "Authorization":
+  //           "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcnlzZmdjdHZkdHZyeHBsZHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEyNDMyMjgsImV4cCI6MjAzNjgxOTIyOH0.7wcpER7Kch2A9zm5MiTKowd7IQ3Q2jSVkDytGzdTZHU"
+  //     });
 
   Future<Iterable<ParagonStats>> _getParagonStats() => supabase
       .rpc<List<Map<String, dynamic>>>('get_paragon_match_count')
@@ -529,7 +537,6 @@ class _UplinkState extends State<Uplink>
                         children: [
                           Flexible(
                             fit: FlexFit.loose,
-                            // TODO: put the logo behind the win rate
                             child: Container(
                               constraints: BoxConstraints(
                                 maxWidth: 250,
@@ -989,7 +996,11 @@ class _UplinkState extends State<Uplink>
                 }
 
                 return Padding(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.only(
+                    top: 16,
+                    left: 8,
+                    right: 8,
+                  ),
                   child: Center(
                     child: InkWell(
                       onTap: () {},

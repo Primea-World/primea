@@ -9,16 +9,9 @@
     SHROUD,
   } from "$lib/parallels/parallel";
   import Icon from "$lib/parallels/Icon.svelte";
+  import PlayerCard from "$lib/PlayerCard.svelte";
 
   let winRate = $state(60);
-
-  // $effect(() => {
-  //   let i = setInterval(() => {
-  //     progress = (progress + 25) % 100;
-  //   }, 2500);
-
-  //   return () => clearInterval(i);
-  // });
 
   function showWinRate() {
     winRate = 60;
@@ -194,138 +187,120 @@
   );
 </script>
 
-<table>
-  <colgroup>
-    <col class="main-column" />
-    <col class="stats-column" />
-  </colgroup>
-  <thead>
-    <tr>
-      <th></th>
-      <th class="stats stats-header">
-        <div>primea</div>
-        <div>//</div>
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <div class="summary">
-          <div>USER: <b>lofty_puma</b></div>
-          <div>SEASON: <b>Echoes of the Void</b></div>
-          <span id="season-parallel">
-            <Icon parallel={SHROUD} />
-          </span>
-          <table>
-            <colgroup>
-              <col style="width: 50%" />
-              <col style="width: 50%" />
-            </colgroup>
-            <tbody>
-              <tr>
-                <td data-label="matches">100</td>
-                <td data-label="matches (7D)">30</td>
-              </tr>
-              <tr>
-                <td data-label="matches won">60</td>
-                <td data-label="matches lost">40</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </td>
-      <td class="stats">
-        <CircularProgress radius={100} pathWidth={5} bind:value={winRate} />
-        <span
-          id="first"
-          role="contentinfo"
-          onmouseenter={showFirstWinRate}
-          onmouseleave={showWinRate}
-          onfocus={showFirstWinRate}
-          data-label="1st"
-        >
-          40
-        </span>
-        <span
-          id="second"
-          role="contentinfo"
-          onmouseenter={showSecondWinRate}
-          onmouseleave={showWinRate}
-          onfocus={showSecondWinRate}
-          data-label="2nd"
-        >
-          60
-        </span>
-      </td>
-    </tr>
-    <tr> </tr>
-  </tbody>
-</table>
-
-<h1>Paragon Summaries</h1>
-{#each parallelSummaries as { parallel, total_count, win_count, loss_count }}
-  {@const paragonStats = paragons.filter((p) => p.paragon.parallel == parallel)}
-  <div class="parallel">
-    <Icon {parallel} />
-    <div>
-      <p class="parallel-title">{parallel.title}</p>
+<PlayerCard>
+  {#snippet cardDetails()}
+    <div class="summary">
       <table>
+        <colgroup>
+          <col style="width: 50%" />
+          <col style="width: 50%" />
+        </colgroup>
         <tbody>
           <tr>
-            <td data-label="games" class="total">
-              {total_count}
-            </td>
-            <td data-label="won" class="wins">{win_count}</td>
-            <td data-label="lost" class="losses">{loss_count}</td>
+            <td data-label="matches">100</td>
+            <td data-label="matches (7D)">30</td>
+          </tr>
+          <tr>
+            <td data-label="matches won">60</td>
+            <td data-label="matches lost">40</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <CircularProgress
-      radius={60}
-      pathWidth={5}
-      value={(win_count / total_count) * 100}
-    />
-    <div class="parallel-stats">
-      {#each paragonStats as { paragon, total_count, win_count, loss_count }}
-        <div
-          style="background-image: url(./paragons/{paragon.name?.replaceAll(
-            ' ',
-            ''
-          )}.webp); background-position-y: {paragon.focalPoint}px;"
-        >
-          <p class="paragon-title" data-description={paragon.description}>
-            {paragon.name}
-          </p>
-          <table>
-            <colgroup>
-              <col style="width: 1fr;" />
-              <col style="width: 1fr;" />
-              <col style="width: 1fr;" />
-            </colgroup>
-            <tbody>
-              <tr>
-                <td data-label="games" class="total">
-                  {total_count}
-                </td>
-                <td data-label="won" class="wins">{win_count}</td>
-                <td data-label="lost" class="losses">{loss_count}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="paragon-winrate">
-            <CircularProgress
-              radius={40}
-              pathWidth={3}
-              value={(win_count / total_count) * 100 || 0}
-            />
-          </div>
-        </div>
-      {/each}
+  {/snippet}
+  {#snippet cardPanel()}
+    <div class="stats">
+      <CircularProgress radius={100} pathWidth={5} bind:value={winRate} />
+      <span
+        id="first"
+        role="contentinfo"
+        onmouseenter={showFirstWinRate}
+        onmouseleave={showWinRate}
+        onfocus={showFirstWinRate}
+        data-label="1st"
+      >
+        40
+      </span>
+      <span
+        id="second"
+        role="contentinfo"
+        onmouseenter={showSecondWinRate}
+        onmouseleave={showWinRate}
+        onfocus={showSecondWinRate}
+        data-label="2nd"
+      >
+        60
+      </span>
     </div>
-  </div>
-{/each}
+  {/snippet}
+</PlayerCard>
+
+<div class="parallel-summaries">
+  {#each parallelSummaries as { parallel, total_count, win_count, loss_count }}
+    {@const paragonStats = paragons.filter(
+      (p) => p.paragon.parallel == parallel
+    )}
+    <div class="parallel">
+      <Icon {parallel} />
+      <div>
+        <p class="parallel-title">{parallel.title}</p>
+        <table>
+          <tbody>
+            <tr>
+              <td data-label="games" class="total">
+                {total_count}
+              </td>
+              <td data-label="won" class="wins">{win_count}</td>
+              <td data-label="lost" class="losses">{loss_count}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <CircularProgress
+        radius={60}
+        pathWidth={5}
+        value={(win_count / total_count) * 100}
+      />
+      <div class="parallel-stats">
+        {#each paragonStats as { paragon, total_count, win_count, loss_count }}
+          <div
+            style="background-image: url(./paragons/{paragon.name?.replaceAll(
+              ' ',
+              ''
+            )}.webp); background-position-y: {paragon.focalPoint}px;"
+          >
+            <p class="paragon-title" data-description={paragon.description}>
+              {paragon.name}
+            </p>
+            <table>
+              <colgroup>
+                <col style="width: 1fr;" />
+                <col style="width: 1fr;" />
+                <col style="width: 1fr;" />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <td data-label="games" class="total">
+                    {total_count}
+                  </td>
+                  <td data-label="won" class="wins">{win_count}</td>
+                  <td data-label="lost" class="losses">{loss_count}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="paragon-winrate">
+              <CircularProgress
+                radius={40}
+                pathWidth={3}
+                value={(win_count / total_count) * 100 || 0}
+              />
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/each}
+</div>
 
 <h1>Live Streams (if there are any)</h1>
 <p>
@@ -334,73 +309,21 @@
 </p>
 
 <style>
-  .main-column,
-  .stats-column {
-    width: 50%;
-  }
-
-  @media screen and (max-width: 1200px) {
-    .main-column {
-      width: 60%;
-    }
-    .stats-column {
-      width: 40%;
-    }
-  }
-
   table {
-    border-collapse: collapse; /* Ensures borders merge */
     width: 100%;
   }
 
-  thead {
-    color: var(--text-dim); /* Dimmer color */
-    text-transform: uppercase;
-    font-style: italic;
-    font-size: 0.75rem;
-    border-bottom: thin solid #c5c5c5;
-  }
-
-  th {
-    font-weight: normal;
-  }
-
-  th > div {
-    padding: 0 1em;
-  }
-
-  tr:nth-child(1) {
-    max-width: 250px;
-    padding: 1em 0.25em 0.5em;
+  div {
+    background-color: var(--surface-color);
   }
 
   .summary {
-    position: relative;
     background-color: #000;
-    padding: 20px;
-    margin-left: auto;
-    box-shadow: -2px 2px 10px 3px #c5c5c580;
-    max-width: 550px;
-  }
-
-  .summary #season-parallel {
-    position: absolute;
-    top: 5%;
-    right: 5%;
-    width: 120px;
-    opacity: 70%;
-  }
-
-  .summary > div:nth-child(1) {
-    font-size: xx-large;
-  }
-
-  .summary > div:nth-child(2) {
-    font-size: x-large;
   }
 
   .summary table {
     margin-top: 1em;
+    border-collapse: collapse;
   }
 
   .summary td {
@@ -423,31 +346,21 @@
   }
 
   .stats {
-    max-width: 250px;
-    border-left: thin solid #c5c5c5;
-    border-right: thin solid #c5c5c5;
+    height: 263px;
+    width: 100%;
     display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 0;
-    position: relative;
   }
 
-  tr .stats {
-    padding: 2.65em 0 0;
-  }
-
-  tr td.stats {
-    border-bottom: thin solid #c5c5c5;
-  }
-
-  .stats #first {
+  #first {
     position: absolute;
     font-size: x-large;
     top: 1em;
     left: 1em;
   }
 
-  .stats #first::before {
+  #first::before {
     content: attr(data-label);
     font-size: small;
     font-weight: lighter;
@@ -456,14 +369,14 @@
     left: 0;
   }
 
-  .stats #second {
+  #second {
     position: absolute;
     font-size: x-large;
     top: 1em;
     right: 1em;
   }
 
-  .stats #second::before {
+  #second::before {
     content: attr(data-label);
     font-size: small;
     font-weight: lighter;
@@ -472,9 +385,9 @@
     right: 0;
   }
 
-  .stats-header {
-    justify-content: space-between;
-    padding: 1em 0;
+  .parallel-summaries {
+    max-width: 1184px;
+    margin: auto;
   }
 
   .parallel {
@@ -482,10 +395,10 @@
     grid-template-columns: 6em 0.5fr 140px;
     justify-content: space-around;
     align-items: center;
-    margin: 1em;
     padding: 1em;
     border: thin solid #c5c5c5;
     position: relative;
+    margin: 1em auto;
   }
 
   .parallel .parallel-title {
@@ -525,19 +438,17 @@
     border-left: 3px solid #ff7332;
   }
 
-  .parallel-stats {
+  .parallel-summaries .parallel-stats {
     position: absolute;
     width: 100%;
     height: 100%;
     display: flex;
     opacity: 0;
     transition: opacity 0.25s ease-in-out;
-    transition-delay: 2s;
   }
 
-  .parallel:hover .parallel-stats {
+  .parallel-summaries:hover .parallel-stats {
     opacity: 1;
-    transition-delay: 0s;
   }
 
   .parallel-stats > div {

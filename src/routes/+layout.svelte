@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import "@fontsource/chakra-petch/300.css";
   import "@fontsource/chakra-petch/400.css";
   import "@fontsource/chakra-petch/500.css";
@@ -10,8 +10,27 @@
   import "@fontsource/chakra-petch/600-italic.css";
   import "@fontsource/chakra-petch/700-italic.css";
   import {page} from "$app/state";
+  import SignIn from "$lib/SignIn.svelte";
+  import {supabase, user} from "$lib/supabase";
+  import type {Snippet} from "svelte";
+  import {replaceState} from "$app/navigation";
 
-  let {children} = $props();
+  interface Props {
+    children: Snippet<[]>;
+    parallel?: {
+      accessToken: string | null;
+      refreshToken: string | null;
+      expiresIn: string | null;
+      tokenType: string | null;
+      scope: string | null;
+    };
+  }
+
+  let {children, parallel}: Props = $props();
+
+  let showModal = $state(false);
+
+  let mouseMove = $state({x: 0, y: 0});
 
   let links = [
     {href: "/", text: "uplink"},
@@ -19,7 +38,35 @@
     {href: "/console", text: "console"},
     {href: "/profile", text: "profile"},
   ];
+
+  function handleMouseMove(mouseMoved: MouseEvent) {
+    mouseMove.x = mouseMoved.clientX;
+    mouseMove.y = mouseMoved.clientY;
+  }
+
+  $supabase.auth
+    .getUser()
+    .then(async ({data}) => {
+      if (data.user) {
+        console.log("User is logged in:", data.user);
+        $user = data.user;
+        if (!!parallel?.accessToken && !!parallel?.refreshToken) {
+          await $supabase.auth.updateUser({
+            data: {
+              parallel,
+            },
+          });
+          replaceState(window.location.pathname, page.state);
+        }
+      }
+    })
+    .catch((error) => {
+      $user = undefined;
+      console.error("Error fetching user:", error);
+    });
 </script>
+
+<svelte:window onmousemove={handleMouseMove} />
 
 <div class="nav">
   <h2 id="title">PRIMEA</h2>
@@ -34,15 +81,69 @@
         {text}
       </a>
     {/each}
-    <a class="nav-link" data-label="AUTH_PANEL[01]" href="/sign-out">sign in</a>
-    <a class="nav-link" data-label="AUTH_PANEL[02]" href="/sign-out">sign out</a
-    >
+    {#if $user}
+      <a
+        class="nav-link"
+        data-label="AUTH_PANEL[02]"
+        href="/"
+        onclick={(e) => {
+          e.preventDefault();
+          $supabase.auth.signOut();
+          user.set(undefined);
+        }}
+      >
+        sign out
+      </a>
+    {:else}
+      <a
+        class="nav-link"
+        data-label="AUTH_PANEL[01]"
+        href="./#"
+        onclick={(e) => {
+          e.preventDefault();
+          showModal = true;
+        }}
+      >
+        sign in
+      </a>
+    {/if}
   </nav>
 </div>
 
-{@render children()}
+<div class="body">
+  <div
+    class="background"
+    style="mask-image: radial-gradient(
+        circle 45svw at 32% 87%,
+        #ffffff88 20%,
+        transparent 60%
+      ),
+      radial-gradient(circle 45svw at 68% 40%, #ffffff88 20%, transparent 60%),
+      radial-gradient(
+        circle 15svw at {mouseMove.x}px {mouseMove.y}px,
+        #ffffff88 20%,
+        transparent 60%
+      );
+    -webkit-mask-image: radial-gradient(
+        circle 45svw at 32% 87%,
+        #ffffff88 20%,
+        transparent 60%
+      ),
+      radial-gradient(circle 45svw at 68% 40%, #ffffff88 20%, transparent 60%),
+      radial-gradient(
+        circle 15svw at {mouseMove.x}px {mouseMove.y}px,
+        #ffffff88 20%,
+        transparent 60%
+      );"
+  ></div>
+  <div class="content">
+    {@render children()}
+  </div>
+</div>
 
 <h4>Footer</h4>
+
+<SignIn bind:showModal />
 
 <style>
   :global(:root) {
@@ -53,14 +154,60 @@
     --surface-color: #131313;
   }
 
+  :global(dialog) {
+    font-family: "Chakra Petch", sans-serif;
+    color: var(--text-color);
+    background-color: #1c1f15;
+  }
+
   :global(body) {
     font-family: "Chakra Petch", sans-serif;
     color: var(--text-color);
     background-color: var(--surface-color);
   }
 
-  :global(.text-shroud-purple) {
-    color: #6438c6;
+  :global(.material-symbols-outlined) {
+    font-variation-settings:
+      "FILL" 0,
+      "wght" 400,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+
+  :global(.material-symbols-rounded) {
+    font-variation-settings:
+      "FILL" 1,
+      "wght" 400,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+
+  :global(.text-ellipsis) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .body {
+    min-height: calc(100svh - 21px - 1.33em * 2 - 57.3px - 8px);
+  }
+
+  .background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(
+      circle,
+      var(--color-primary) 2px,
+      transparent 3px
+    );
+    background-size: 1.2em 1.2em;
+  }
+
+  .content {
+    position: relative;
   }
 
   #title {
@@ -74,7 +221,6 @@
     display: flex;
     justify-content: space-between;
     text-transform: uppercase;
-    background-color: var(--surface-color);
   }
 
   .nav-link {

@@ -13,20 +13,19 @@
   import SignIn from "$lib/SignIn.svelte";
   import {supabase, user} from "$lib/supabase";
   import type {Snippet} from "svelte";
-  import {replaceState} from "$app/navigation";
 
-  interface Props {
-    children: Snippet<[]>;
-    parallel?: {
-      accessToken: string | null;
-      refreshToken: string | null;
-      expiresIn: string | null;
-      tokenType: string | null;
-      scope: string | null;
-    };
-  }
+  // interface Props {
+  //   children: Snippet<[]>;
+  //   parallel?: {
+  //     accessToken: string | null;
+  //     refreshToken: string | null;
+  //     expiresIn: string | null;
+  //     tokenType: string | null;
+  //     scope: string | null;
+  //   };
+  // }
 
-  let {children, parallel}: Props = $props();
+  let {children, data} = $props();
 
   let showModal = $state(false);
 
@@ -44,19 +43,27 @@
     mouseMove.y = mouseMoved.clientY;
   }
 
+  $supabase.auth.updateUser({
+    data: {
+      parallelProfile: null,
+    },
+  });
+
   $supabase.auth
     .getUser()
-    .then(async ({data}) => {
-      if (data.user) {
-        console.log("User is logged in:", data.user);
-        $user = data.user;
-        if (!!parallel?.accessToken && !!parallel?.refreshToken) {
+    .then(async (userData) => {
+      if (userData.data.user) {
+        console.log("User is logged in:", userData.data.user);
+        $user = userData.data.user;
+        if (
+          !!data.parallelAuth?.access_token &&
+          !!data.parallelAuth?.refresh_token
+        ) {
           await $supabase.auth.updateUser({
             data: {
-              parallel,
+              parallel: data.parallelAuth,
             },
           });
-          replaceState(window.location.pathname, page.state);
         }
       }
     })

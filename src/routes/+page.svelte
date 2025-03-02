@@ -10,6 +10,9 @@
   } from "$lib/parallels/parallel";
   import Icon from "$lib/parallels/Icon.svelte";
   import PlayerCard from "$lib/PlayerCard.svelte";
+  import {ParallelProfile} from "$lib/parallelProfile.js";
+
+  let {data} = $props();
 
   let winRate = $state(60);
 
@@ -187,7 +190,11 @@
   );
 </script>
 
-<PlayerCard>
+<PlayerCard
+  parallelProfile={data.account?.then(
+    (account) => new ParallelProfile(account)
+  )}
+>
   {#snippet cardDetails()}
     <div class="summary">
       <table>

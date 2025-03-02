@@ -19,8 +19,6 @@
   }
 
   function signInWithSocial(platform: Provider) {
-    // Implement social sign-in logic here
-    console.log(`Signing in with ${platform}`);
     $supabase.auth.signInWithOAuth({
       provider: platform,
       options: {

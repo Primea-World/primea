@@ -12,13 +12,15 @@
   import {user, userName} from "./supabase";
   import type {PageData} from "../routes/$types";
   import {page} from "$app/state";
+  import type {ParallelProfile} from "./parallelProfile";
 
   interface Props {
     cardDetails: Snippet<[]>;
     cardPanel: Snippet<[]>;
+    parallelProfile: Promise<ParallelProfile | null> | undefined;
   }
 
-  const {cardDetails, cardPanel}: Props = $props();
+  const {cardDetails, cardPanel, parallelProfile}: Props = $props();
 
   const pageData = page.data as PageData;
 
@@ -61,7 +63,16 @@
     <tr>
       <td>
         <div class="summary">
-          <div class="text-ellipsis">USER: <b>{userName($user)}</b></div>
+          <div class="text-ellipsis">
+            USER:
+            <b>
+              {#await parallelProfile}
+                {userName($user)}
+              {:then profile}
+                {userName($user, profile)}
+              {/await}
+            </b>
+          </div>
           {#await season}
             <div class="text-ellipsis">SEASON: <b>unknown</b></div>
           {:then seasonData}

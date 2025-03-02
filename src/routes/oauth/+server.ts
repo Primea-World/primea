@@ -1,4 +1,5 @@
-import { PUBLIC_PARALLEL_CLIENT_ID, PUBLIC_PARALLEL_REDIRECT } from "$env/static/public";
+import { dev } from "$app/environment";
+import { PARALLEL_CLIENT_ID, PARALLEL_REDIRECT } from "$env/static/private";
 import { error, redirect } from "@sveltejs/kit";
 
 export const GET = async ({ url, cookies, fetch }) => {
@@ -8,7 +9,11 @@ export const GET = async ({ url, cookies, fetch }) => {
   if (!code || !redirectUri || !challenge) {
     throw error(500, "invalid authorization response");
   }
-  console.log("found code, redirectUri, or challenge", { code, redirectUri, challenge });
+  console.log("found code, redirectUri, and challenge", {
+    code,
+    redirectUri,
+    challenge,
+  });
 
   const response = await fetch(`https://parallel.life/oauth2/token/`, {
     method: "POST",
@@ -18,16 +23,31 @@ export const GET = async ({ url, cookies, fetch }) => {
     body: new URLSearchParams({
       "grant_type": "authorization_code",
       "code": code,
-      "client_id": PUBLIC_PARALLEL_CLIENT_ID,
+      "client_id": PARALLEL_CLIENT_ID,
       "code_verifier": challenge,
-      "redirect_uri": `${PUBLIC_PARALLEL_REDIRECT}?redirect=${redirectUri}`,
+      "redirect_uri": `${PARALLEL_REDIRECT}?redirect=${redirectUri}`,
     }),
   });
 
   const data = await response.json();
   if (data.error) {
-    throw error(500, "error obtaining access token");
+    throw error(500, "error obtaining access token: " + data.error);
   }
-  const { access_token, refresh_token, expires_in, token_type, scope } = data;
-  throw redirect(303, `${redirectUri}?access_token=${access_token}&refresh_token=${refresh_token}&expires_in=${expires_in}?token_type=${token_type}&scope=${scope}`);
-}
+
+  cookies.delete("x-challenge", {
+    path: "/", // Cookie available site-wide
+    httpOnly: true, // Prevent client-side JS access
+    secure: !dev, // Secure in production
+    maxAge: 60 * 60 * 24, // Expires in 24 hours (in seconds)
+  });
+
+  cookies.set("parallel-auth", JSON.stringify(data), {
+    path: "/", // Cookie available site-wide
+    httpOnly: true, // Prevent client-side JS access
+    secure: true, // Secure in production
+    sameSite: "strict", // Prevent CSRF
+    maxAge: data.expires_in, // Expires at token expiration
+  });
+
+  throw redirect(303, `${redirectUri}`);
+};

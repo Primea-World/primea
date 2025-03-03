@@ -26,7 +26,7 @@ export const GET = async ({ url, cookies }) => {
     path: "/", // Cookie available site-wide
     httpOnly: true, // Prevent client-side JS access
     secure: !dev, // Secure in production
-    maxAge: 60 * 60 * 24, // Expires in 24 hours (in seconds)
+    maxAge: 60 * 30, // Expires in 30 minutes (in seconds)
   });
 
   const params = [

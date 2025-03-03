@@ -138,8 +138,8 @@
       ),
       radial-gradient(circle 45svw at 68% 40%, #ffffff88 20%, transparent 60%),
       radial-gradient(
-        circle 15svw at {mouseMove.x}px {mouseMove.y}px,
-        #ffffff88 20%,
+        circle 10svw at {mouseMove.x}px {mouseMove.y}px,
+        #ffffffff 20%,
         transparent 60%
       );"
   ></div>

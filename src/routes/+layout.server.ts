@@ -30,12 +30,26 @@ export const load: LayoutServerLoad = async ({ cookies, fetch }) => {
     .gte("season_end", nowUTC)
     .single();
 
-  const authCookie = cookies.get("parallel-auth");
   let parallelAuth: ParallelToken | null = null;
+  const authCookie = cookies.get("parallel-auth");
   if (authCookie) {
     parallelAuth = JSON.parse(
       cookies.get("parallel-auth") ?? "{}",
     ) as ParallelToken;
+
+    // Check if the token is expired
+    if (parallelAuth.expires_at && parallelAuth.expires_at < Date.now()) {
+      // Token is expired, set to null
+      parallelAuth = await (await fetch("/oauth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          refresh_token: parallelAuth.refresh_token,
+        }),
+      })).json();
+    }
   }
 
   let account = null;
@@ -48,7 +62,12 @@ export const load: LayoutServerLoad = async ({ cookies, fetch }) => {
           Authorization: `Bearer ${parallelAuth.access_token}`,
         },
       },
-    ).then(async (r) => await r.json());
+    ).then(async (r) => {
+      if (r.status !== 200) {
+        return null;
+      }
+      return await r.json();
+    });
   }
 
   return {

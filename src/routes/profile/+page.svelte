@@ -277,7 +277,7 @@
                     />
                   </video>
                   <div data-label="prismatic key">
-                    {parallelProfile.prismatic_parallel ?? "n/a"}
+                    {parallelProfile.prismatic_parallel ?? "NOT FOUND"}
                   </div>
                 </div>
                 <div>
@@ -286,7 +286,7 @@
                     alt="skeleton key"
                   />
                   <div data-label="skeleton key">
-                    {parallelProfile.skeleton_transformed_key ?? "n/a"}
+                    {parallelProfile.skeleton_transformed_key ?? "NOT FOUND"}
                   </div>
                 </div>
               </div>

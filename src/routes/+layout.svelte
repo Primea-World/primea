@@ -148,7 +148,19 @@
   </div>
 </div>
 
-<h4>Footer</h4>
+<div class="footer">
+  <div>
+    <span>
+      <img src="/brands/echelon.svg" alt="echelon" />
+      <span>
+        <p>echelon</p>
+        <p>foundation</p>
+      </span>
+    </span>
+    <p>official partner</p>
+  </div>
+  <p>primea world © 2025</p>
+</div>
 
 <SignIn bind:showModal />
 
@@ -273,5 +285,44 @@
 
   .nav-link.selected::before {
     color: var(--text-color); /* Highlight the data panel text */
+  }
+
+  .footer {
+    margin-top: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    background-color: var(--color-secondary);
+    color: var(--text-color);
+
+    img {
+      margin-top: 0.5rem;
+    }
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      > span {
+        display: grid;
+        grid-auto-flow: column;
+        > span > p {
+          margin: 0;
+          text-transform: uppercase;
+          font-weight: 600;
+          line-height: 1;
+        }
+      }
+      > p {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+    > p {
+      margin: 0;
+      text-transform: uppercase;
+      font-size: small;
+      color: var(--text-dim);
+    }
   }
 </style>

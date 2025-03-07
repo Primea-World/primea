@@ -46,6 +46,10 @@ abstract class Paragon {
   abstract description?: string;
   focalPoint: number = -100;
 
+  get camelCaseName(): string {
+    return this.name?.replaceAll(' ', '') ?? "";
+  }
+
   static fromString(str: string): Paragon {
     switch (str) {
       case "jahn":

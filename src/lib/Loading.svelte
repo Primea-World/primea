@@ -9,7 +9,7 @@
 </script>
 
 <div class="roller" data-total={dotCount}>
-  {#each dots as { }}
+  {#each dots}
     <div data-total={dotCount}></div>
   {/each}
 </div>

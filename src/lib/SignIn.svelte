@@ -1,13 +1,12 @@
 <script lang="ts">
-  import type {Provider} from "@supabase/supabase-js";
+  import type {Provider, SupabaseClient} from "@supabase/supabase-js";
   import Modal from "./Modal.svelte";
-  import {supabase} from "./supabase";
 
   interface Props {
-    showModal: boolean;
+    supabase: SupabaseClient;
   }
 
-  let {showModal = $bindable(false)}: Props = $props();
+  const {supabase} = $props();
 
   let passwordVisible = $state(false);
   let passwordType = $state("password");
@@ -19,30 +18,31 @@
   }
 
   function signInWithSocial(platform: Provider) {
-    $supabase.auth.signInWithOAuth({
+    supabase.auth.signInWithOAuth({
       provider: platform,
-      options: {
-        redirectTo: "/",
-      },
+      // options: {
+      //   redirectTo: window.location.pathname,
+      // },
     });
   }
 </script>
 
-<Modal bind:showModal>
+<Modal>
   {#snippet header()}
     <div class="header">
       <h1>Sign in</h1>
     </div>
   {/snippet}
   <div class="content">
-    <form>
+    <form method="post" action="/auth/login">
       <!-- Email Input Field -->
       <div class="form-group">
         <label class="label" for="email">Email</label>
         <input
           class="input"
           id="email"
-          type="text"
+          type="email"
+          name="email"
           placeholder="example@email.me"
           autocomplete="email"
         />
@@ -55,6 +55,7 @@
           <input
             class="input"
             id="password"
+            name="password"
             type={passwordType}
             autocomplete="current-password"
           />
@@ -67,18 +68,18 @@
           </button>
         </div>
       </div>
+      <!-- Sign Up and Sign In Buttons -->
+      <div class="button-group">
+        <button class="button outlined" formaction="/auth/signup">
+          <span class="material-symbols-rounded">mail</span>
+          <span id="outlined">Sign Up</span>
+        </button>
+        <button class="button">
+          <span class="material-symbols-rounded">mail</span>
+          <span>Sign In</span>
+        </button>
+      </div>
     </form>
-    <!-- Sign Up and Sign In Buttons -->
-    <div class="button-group">
-      <button class="button outlined">
-        <span class="material-symbols-rounded">mail</span>
-        <span id="outlined">Sign Up</span>
-      </button>
-      <button class="button">
-        <span class="material-symbols-rounded">mail</span>
-        <span>Sign In</span>
-      </button>
-    </div>
   </div>
   <span style="display: flex;">
     <hr style="width: 90%; color: #1c1c1c88" />

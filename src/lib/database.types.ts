@@ -269,6 +269,72 @@ export type Database = {
           },
         ]
       }
+      matches: {
+        Row: {
+          completed: boolean
+          game_end_time: string
+          game_start_time: string
+          game_type: Database["public"]["Enums"]["game_type"]
+          match_id: string
+          player_one_deck_paragon: string | null
+          player_one_deck_parallel:
+            | Database["public"]["Enums"]["parallel"]
+            | null
+          player_one_id: string | null
+          player_one_name: string | null
+          player_two_deck_paragon: string | null
+          player_two_deck_parallel:
+            | Database["public"]["Enums"]["parallel"]
+            | null
+          player_two_id: string | null
+          player_two_name: string | null
+          winner_id: string | null
+          winner_name: string | null
+        }
+        Insert: {
+          completed: boolean
+          game_end_time: string
+          game_start_time: string
+          game_type: Database["public"]["Enums"]["game_type"]
+          match_id: string
+          player_one_deck_paragon?: string | null
+          player_one_deck_parallel?:
+            | Database["public"]["Enums"]["parallel"]
+            | null
+          player_one_id?: string | null
+          player_one_name?: string | null
+          player_two_deck_paragon?: string | null
+          player_two_deck_parallel?:
+            | Database["public"]["Enums"]["parallel"]
+            | null
+          player_two_id?: string | null
+          player_two_name?: string | null
+          winner_id?: string | null
+          winner_name?: string | null
+        }
+        Update: {
+          completed?: boolean
+          game_end_time?: string
+          game_start_time?: string
+          game_type?: Database["public"]["Enums"]["game_type"]
+          match_id?: string
+          player_one_deck_paragon?: string | null
+          player_one_deck_parallel?:
+            | Database["public"]["Enums"]["parallel"]
+            | null
+          player_one_id?: string | null
+          player_one_name?: string | null
+          player_two_deck_paragon?: string | null
+          player_two_deck_parallel?:
+            | Database["public"]["Enums"]["parallel"]
+            | null
+          player_two_id?: string | null
+          player_two_name?: string | null
+          winner_id?: string | null
+          winner_name?: string | null
+        }
+        Relationships: []
+      }
       seasons: {
         Row: {
           id: number
@@ -379,6 +445,7 @@ export type Database = {
         | "split: unit-effect"
       expansion: "Base Set" | "Battlepass" | "Planetfall" | "Aftermath"
       game_result: "win" | "loss" | "draw" | "disconnect"
+      game_type: "ranked"
       paragon:
         | "unknown"
         | "jahn"

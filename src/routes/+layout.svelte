@@ -1,82 +1,60 @@
 <script lang="ts">
-  import "@fontsource/chakra-petch/300.css";
-  import "@fontsource/chakra-petch/400.css";
-  import "@fontsource/chakra-petch/500.css";
-  import "@fontsource/chakra-petch/600.css";
-  import "@fontsource/chakra-petch/700.css";
-  import "@fontsource/chakra-petch/300-italic.css";
-  import "@fontsource/chakra-petch/400-italic.css";
-  import "@fontsource/chakra-petch/500-italic.css";
-  import "@fontsource/chakra-petch/600-italic.css";
-  import "@fontsource/chakra-petch/700-italic.css";
   import {page} from "$app/state";
   import SignIn from "$lib/SignIn.svelte";
-  import {supabase, user} from "$lib/supabase";
-  import type {Snippet} from "svelte";
+  import {PUBLIC_SUPABASE_URL} from "$env/static/public";
+  import {goto, invalidate, pushState} from "$app/navigation";
+  import {onMount} from "svelte";
 
-  // interface Props {
-  //   children: Snippet<[]>;
-  //   parallel?: {
-  //     accessToken: string | null;
-  //     refreshToken: string | null;
-  //     expiresIn: string | null;
-  //     tokenType: string | null;
-  //     scope: string | null;
-  //   };
-  // }
+  const {children, data} = $props();
 
-  let {children, data} = $props();
+  const {supabase, user, session} = $derived(data);
 
-  let showModal = $state(false);
+  let mouseMove = $state({x: -1000, y: -1000});
 
-  let mouseMove = $state({x: 0, y: 0});
+  const links = [{href: "/", text: "uplink"}];
 
-  let links = [
-    {href: "/", text: "uplink"},
+  const authorizedLinks = [
     {href: "/matches", text: "matches"},
-    {href: "/console", text: "console"},
+    // {href: "/console", text: "console"},
     {href: "/profile", text: "profile"},
   ];
 
   function handleMouseMove(mouseMoved: MouseEvent) {
-    mouseMove.x = mouseMoved.clientX;
-    mouseMove.y = mouseMoved.clientY;
+    if (
+      mouseMoved.clientX + mouseMoved.movementX <= 8 ||
+      mouseMoved.clientY + mouseMoved.movementY <= 8 ||
+      mouseMoved.clientX + mouseMoved.movementX >= window.innerWidth - 8 ||
+      mouseMoved.clientY + mouseMoved.movementY >= window.innerHeight - 8
+    ) {
+      mouseMove.x = -1000;
+      mouseMove.y = -1000;
+    } else {
+      mouseMove.x = mouseMoved.clientX;
+      mouseMove.y = mouseMoved.clientY;
+    }
   }
 
-  $supabase.auth.updateUser({
-    data: {
-      parallelProfile: null,
-    },
-  });
-
-  $supabase.auth
-    .getUser()
-    .then(async (userData) => {
-      if (userData.data.user) {
-        console.log("User is logged in:", userData.data.user);
-        $user = userData.data.user;
-        if (
-          !!data.parallelAuth?.access_token &&
-          !!data.parallelAuth?.refresh_token
-        ) {
-          await $supabase.auth.updateUser({
-            data: {
-              parallel: data.parallelAuth,
-            },
-          });
-        }
+  onMount(() => {
+    const {data} = supabase.auth.onAuthStateChange((_, newSession) => {
+      if (newSession?.expires_at !== session?.expires_at) {
+        invalidate("supabase:auth");
       }
-    })
-    .catch((error) => {
-      $user = undefined;
-      console.error("Error fetching user:", error);
     });
+
+    return () => data.subscription.unsubscribe();
+  });
 </script>
 
 <svelte:window onmousemove={handleMouseMove} />
 
+<link rel="preconnect" href={PUBLIC_SUPABASE_URL} />
+
 <div class="nav">
-  <h2 id="title">PRIMEA</h2>
+  <a href="/">
+    <h2 id="title">
+      <img src="/brands/primea.svg" alt="Primea" />PRIMEA
+    </h2>
+  </a>
   <nav>
     {#each links as { href, text }, i}
       <a
@@ -88,15 +66,26 @@
         {text}
       </a>
     {/each}
-    {#if $user}
+    {#if user}
+      {#each authorizedLinks as { href, text }, i}
+        <a
+          class="nav-link"
+          {href}
+          data-label={`DATA_PANEL[${i + links.length + 1}]`}
+          class:selected={href === page.url.pathname}
+        >
+          {text}
+        </a>
+      {/each}
       <a
         class="nav-link"
         data-label="AUTH_PANEL[02]"
         href="/"
         onclick={(e) => {
           e.preventDefault();
-          $supabase.auth.signOut();
-          user.set(undefined);
+          supabase.auth.signOut();
+          document.cookie = `parallel-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          goto("/");
         }}
       >
         sign out
@@ -108,7 +97,9 @@
         href="./#"
         onclick={(e) => {
           e.preventDefault();
-          showModal = true;
+          pushState("", {
+            showModal: true,
+          });
         }}
       >
         sign in
@@ -120,28 +111,7 @@
 <div class="body">
   <div
     class="background"
-    style="mask-image: radial-gradient(
-        circle 45svw at 32% 87%,
-        #ffffff88 20%,
-        transparent 60%
-      ),
-      radial-gradient(circle 45svw at 68% 40%, #ffffff88 20%, transparent 60%),
-      radial-gradient(
-        circle 15svw at {mouseMove.x}px {mouseMove.y}px,
-        #ffffff88 20%,
-        transparent 60%
-      );
-    -webkit-mask-image: radial-gradient(
-        circle 45svw at 32% 87%,
-        #ffffff88 20%,
-        transparent 60%
-      ),
-      radial-gradient(circle 45svw at 68% 40%, #ffffff88 20%, transparent 60%),
-      radial-gradient(
-        circle 10svw at {mouseMove.x}px {mouseMove.y}px,
-        #ffffffff 20%,
-        transparent 60%
-      );"
+    style="--mouse-x: {mouseMove.x}px; --mouse-y: {mouseMove.y}px;"
   ></div>
   <div class="content">
     {@render children()}
@@ -162,7 +132,7 @@
   <p>primea world © 2025</p>
 </div>
 
-<SignIn bind:showModal />
+<SignIn {supabase} />
 
 <style>
   :global(:root) {
@@ -180,6 +150,7 @@
   }
 
   :global(body) {
+    margin-top: 0;
     font-family: "Chakra Petch", sans-serif;
     color: var(--text-color);
     background-color: var(--surface-color);
@@ -208,7 +179,7 @@
   }
 
   .body {
-    min-height: calc(100svh - 21px - 1.33em * 2 - 57.3px - 8px);
+    min-height: calc(100svh - 21px - 1.33em * 2 - 53px - 1em);
   }
 
   .background {
@@ -223,14 +194,52 @@
       transparent 3px
     );
     background-size: 1.2em 1.2em;
+    mask-image: radial-gradient(
+        circle 45svw at 32% 87%,
+        #ffffff88 20%,
+        transparent 60%
+      ),
+      radial-gradient(circle 45svw at 68% 40%, #ffffff88 20%, transparent 60%),
+      radial-gradient(
+        circle 10svw at var(--mouse-x) var(--mouse-y),
+        #ffffff88 20%,
+        transparent 60%
+      );
+    -webkit-mask-image: radial-gradient(
+        circle 45svw at 32% 87%,
+        #ffffff88 20%,
+        transparent 60%
+      ),
+      radial-gradient(circle 45svw at 68% 40%, #ffffff88 20%, transparent 60%),
+      radial-gradient(
+        circle 10svw at var(--mouse-x) var(--mouse-y),
+        #ffffffff 20%,
+        transparent 60%
+      );
   }
 
   .content {
     position: relative;
   }
 
+  a:link,
+  a:visited,
+  a:hover,
+  a:active {
+    text-decoration: none;
+    color: inherit;
+  }
+
   #title {
-    margin-top: 0.4rem;
+    margin: 0.4rem;
+    display: flex;
+    align-items: center;
+
+    > img {
+      aspect-ratio: 1;
+      width: 1.33em;
+      margin-right: 0.5em;
+    }
   }
 
   .nav {
@@ -240,6 +249,7 @@
     display: flex;
     justify-content: space-between;
     text-transform: uppercase;
+    background-color: #131313d1;
   }
 
   .nav-link {

@@ -4,32 +4,38 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
+    "git_hash": "PUBLIC_CF_PAGES_COMMIT_SHA=$(git rev-parse --short HEAD)",
+    "dev": "bun run git_hash && vite dev",
+    "build": "bun run git_hash && vite build",
+    "preview": "bun run build && wrangler pages dev",
+    "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "deploy": "bun run build && wrangler pages deploy",
+    "cf-typegen": "wrangler types && mv worker-configuration.d.ts src/"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.7",
-    "@sveltejs/adapter-auto": "^3.3.1",
-    "@sveltejs/kit": "^2.17.2",
+    "@sveltejs/adapter-cloudflare": "^5.0.3",
+    "@sveltejs/adapter-cloudflare-workers": "^2.8.0",
+    "@sveltejs/kit": "^2.18.0",
     "@sveltejs/vite-plugin-svelte": "^4.0.4",
     "@types/d3": "^7.4.3",
     "eslint": "^9.21.0",
     "eslint-plugin-svelte": "^2.46.1",
+    "eslint-plugin-svelte3": "^4.0.0",
     "globals": "^15.15.0",
-    "svelte": "^5.20.2",
+    "svelte": "^5.22.1",
     "svelte-check": "^4.1.4",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.24.1",
-    "vite": "^5.4.14"
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.0",
+    "vite": "^5.4.14",
+    "wrangler": "^3.112.0"
   },
   "dependencies": {
-    "@fontsource/chakra-petch": "^5.1.1",
-    "@supabase/supabase-js": "^2.48.1",
-    "d3": "^7.9.0",
-    "eslint-plugin-svelte3": "^4.0.0"
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.1",
+    "d3": "^7.9.0"
   }
 }

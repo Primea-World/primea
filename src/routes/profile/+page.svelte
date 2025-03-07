@@ -1,11 +1,24 @@
 <script lang="ts">
   import {page} from "$app/state";
-  import {ParallelProfile} from "$lib/parallelProfile.js";
   import PlayerCard from "$lib/PlayerCard.svelte";
-  import {supabase, user} from "$lib/supabase";
   import {type Provider} from "@supabase/supabase-js";
+  import {PUBLIC_PARALLEL_URL} from "$env/static/public";
+  import Typewriter from "$lib/Typewriter.svelte";
+  import {onDestroy, onMount} from "svelte";
+  import type {ParallelPermissions} from "$lib/parallelPermissions.js";
+  import {relativeTimeDifference, second} from "$lib/util.js";
 
   let {data} = $props();
+
+  const {supabase, user, account, season} = data;
+
+  let title = $state("");
+  let timer: NodeJS.Timeout | undefined;
+  let now = $state(Date.now());
+  let skeletonKeyExpiryTime: number | undefined = $state();
+  let skeletonKeyRefresh = $derived(
+    relativeTimeDifference(now, skeletonKeyExpiryTime)
+  );
 
   const sampleSettings = [
     {
@@ -30,13 +43,30 @@
       include_primary_wallet: undefined,
     },
   ];
+
+  onMount(async () => {
+    const parallelProfile = await account;
+    if (parallelProfile?.title?.title) {
+      title = parallelProfile.title.title;
+    }
+    if (parallelProfile?.equipped_skeleton_keys[0].expiry_date) {
+      skeletonKeyExpiryTime = new Date(
+        parallelProfile.equipped_skeleton_keys[0].expiry_date + "Z"
+      ).getTime();
+      timer = setInterval(() => {
+        now = Date.now();
+      }, second);
+    }
+  });
+
+  onDestroy(() => {
+    if (timer) {
+      clearInterval(timer);
+    }
+  });
 </script>
 
-<PlayerCard
-  parallelProfile={data.account?.then(
-    (account) => new ParallelProfile(account)
-  )}
->
+<PlayerCard {user} {account} {season}>
   {#snippet cardDetails()}
     <div class="summary">
       <table>
@@ -47,7 +77,7 @@
         <tbody>
           <tr>
             {#each ["twitch", "discord"] as provider}
-              {@const identity = $user?.identities?.find(
+              {@const identity = user?.identities?.find(
                 (i) => i.provider == provider
               )}
               <td
@@ -58,9 +88,9 @@
                   e.preventDefault();
                   console.log(`Unlinking ${provider}`);
                   if (!!identity) {
-                    await $supabase.auth.unlinkIdentity(identity);
+                    await supabase.auth.unlinkIdentity(identity);
                   } else {
-                    await $supabase.auth.linkIdentity({
+                    await supabase.auth.linkIdentity({
                       provider: provider as Provider,
                     });
                   }
@@ -78,44 +108,38 @@
             {/each}
           </tr>
           <tr>
-            {#await data.account}
-              <td data-label="rank">loading</td>
-              <td data-label="bracket">loading</td>
-            {:then parallelAccount}
-              {#if !!parallelAccount?.parallel_profile}
-                {@const parallelProfile = new ParallelProfile(parallelAccount)}
-                <td data-label="rank">{parallelProfile?.rank ?? "unknown"}</td>
-                <td data-label="bracket"
-                  >{parallelProfile?.rank_bracket ?? "unknown"}
-                </td>
-              {:else}
-                <td data-label="rank">unknown</td>
-                <td data-label="bracket">unknown </td>
-              {/if}
-            {/await}
+            <td data-label="rank">
+              <Typewriter
+                text={account?.then((parallelAccount) => parallelAccount.rank)}
+              />
+            </td>
+            <td data-label="bracket">
+              <Typewriter
+                text={account?.then(
+                  (parallelAccount) => parallelAccount.rank_bracket
+                )}
+              />
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   {/snippet}
   {#snippet cardPanel()}
-    {#await data.account}
+    {#await account}
       <div
         class="panel title"
         style="background-image: url(/unknown_origins.avif);"
       >
         <h2>LOADING</h2>
       </div>
-    {:then parallelAccount}
-      {#if !!parallelAccount?.parallel_profile}
-        {@const parallelProfile = new ParallelProfile(parallelAccount)}
+    {:then parallelProfile}
+      {#if !!parallelProfile}
         {#if parallelProfile?.avatar.image_url}
           <div
-            class="panel title"
+            class="panel"
             style="background-image: url({parallelProfile?.avatar.image_url});"
-          >
-            <h2>{parallelProfile.avatar.name}</h2>
-          </div>
+          ></div>
         {:else if parallelProfile?.django_profile.picture_url}
           <div
             class="panel"
@@ -123,10 +147,10 @@
               .picture_url});"
           ></div>
         {/if}
-      {:else if $user?.user_metadata.avatar_url}
+      {:else if user?.user_metadata.avatar_url}
         <div
           class="panel"
-          style="background-image: url({$user?.user_metadata.avatar_url});"
+          style="background-image: url({user?.user_metadata.avatar_url});"
         ></div>
       {:else}
         <div
@@ -140,8 +164,8 @@
   {/snippet}
 </PlayerCard>
 
-{#snippet samplePermissions()}
-  {#each sampleSettings as permission}
+{#snippet permissionsSnippet(settings: ParallelPermissions[])}
+  {#each settings as permission}
     <div class="permissions" data-label={permission.game_type}>
       <table>
         <tbody>
@@ -199,203 +223,103 @@
   <tbody>
     <tr>
       <td>
-        {#await data.account}
-          <div class="parallel-account-link">
-            <div class="link-overlay">
-              <h2 style="color: black;">LOADING</h2>
-            </div>
-            <img src="/parallels/parallel.svg" alt="parallel" />
-            <h2 data-label="unknown">unknown</h2>
-            <button
-              class="link"
-              onclick={async (e) => {
-                e.preventDefault();
-                console.log("Unlinking parallel account");
-              }}
-            >
-              UNLINK ACCOUNT
-            </button>
-            <div class="keys">
-              <div>
-                <video autoplay loop muted>
-                  <source
-                    src="https://nftmedia.parallelnft.com/parallel-alpha/QmPBM3hvi8dZ2CFwDSeJHTSWPkr3au7unMDSEckBaLwMHR/animation.mp4"
-                    type="video/mp4"
-                  />
-                </video>
-                <div data-label="prismatic key">UNKNOWN</div>
-              </div>
-              <div>
-                <img
-                  src="https://nftmedia.parallelnft.com/parallel-planetfall/QmWWNiwppSggPYCsUxWj3GswARnZ3tbpYPBMCUyjWyCqSo/image.png"
-                  alt="skeleton key"
-                />
-                <div data-label="skeleton key">UNKNOWN</div>
-              </div>
-            </div>
-          </div>
-        {:then parallelAccount}
-          <div class="parallel-account-link">
-            {#if !parallelAccount}
+        <div class="parallel-account-link">
+          {#await account then parallelProfile}
+            {#if !parallelProfile}
               <div class="link-overlay">
                 <a
-                  href={"/profile/parallel?redirect=" + page.url.pathname}
+                  href={"/oauth/authorize?redirect=" + page.url.pathname}
                   class="link"
                 >
                   <h2>LINK PARALLEL ACCOUNT</h2>
                 </a>
               </div>
             {/if}
-            <img src="/parallels/parallel.svg" alt="parallel" />
-            {#if parallelAccount?.parallel_profile}
-              {@const parallelProfile = new ParallelProfile(parallelAccount)}
-              <h2 data-label={parallelProfile?.title?.title}>
-                {parallelProfile?.django_profile.username}
-              </h2>
-              <button
-                class="link"
-                onclick={async (e) => {
-                  e.preventDefault();
-                  console.log("Unlinking parallel account");
-                  document.cookie = `parallel-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-                  await $supabase.auth.updateUser({
-                    data: {
-                      parallel: null,
-                    },
-                  });
-                  window.location.reload();
-                }}
-              >
-                UNLINK ACCOUNT
-              </button>
-              <div class="keys">
-                <div>
-                  <video autoplay loop muted>
-                    <source
-                      src="https://nftmedia.parallelnft.com/parallel-alpha/QmPBM3hvi8dZ2CFwDSeJHTSWPkr3au7unMDSEckBaLwMHR/animation.mp4"
-                      type="video/mp4"
-                    />
-                  </video>
-                  <div data-label="prismatic key">
-                    {parallelProfile.prismatic_parallel ?? "NOT FOUND"}
-                  </div>
-                </div>
-                <div>
-                  <img
-                    src="https://nftmedia.parallelnft.com/parallel-planetfall/QmWWNiwppSggPYCsUxWj3GswARnZ3tbpYPBMCUyjWyCqSo/image.png"
-                    alt="skeleton key"
-                  />
-                  <div data-label="skeleton key">
-                    {parallelProfile.skeleton_transformed_key ?? "NOT FOUND"}
-                  </div>
-                </div>
+          {/await}
+          <img src="/parallels/parallel.svg" alt="parallel" />
+          <h2 data-label="// {title}">
+            <Typewriter
+              text={account?.then(
+                (parallelProfile) => parallelProfile.django_profile.username
+              )}
+            />
+          </h2>
+          <button
+            class="link"
+            disabled={!account}
+            onclick={async (e) => {
+              e.preventDefault();
+              const confirmation = await confirm(
+                "Are you sure you want to unlink your parallel account?"
+              );
+              if (!confirmation) {
+                return;
+              }
+              console.log("Unlinking parallel account");
+              document.cookie = `parallel-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+              await supabase.auth.updateUser({
+                data: {
+                  parallel: null,
+                },
+              });
+              window.location.reload();
+            }}
+          >
+            UNLINK ACCOUNT
+          </button>
+          <div class="keys">
+            <div>
+              <video autoplay loop muted>
+                <source
+                  src="https://nftmedia.parallelnft.com/parallel-alpha/QmPBM3hvi8dZ2CFwDSeJHTSWPkr3au7unMDSEckBaLwMHR/animation.mp4"
+                  type="video/mp4"
+                />
+              </video>
+              <div data-label="prismatic key">
+                <Typewriter
+                  text={account?.then(
+                    (parallelProfile) => parallelProfile.prismatic_parallel
+                  )}
+                  defaultText="not found"
+                />
               </div>
-            {:else}
-              <h2 data-label="unknown">unknown</h2>
-              <button
-                class="link"
-                onclick={async (e) => {
-                  e.preventDefault();
-                  console.log("Linking parallel account");
-                }}
-              >
-                LINK ACCOUNT
-              </button>
-              <div class="keys">
-                <div>
-                  <video autoplay loop muted>
-                    <source
-                      src="https://nftmedia.parallelnft.com/parallel-alpha/QmPBM3hvi8dZ2CFwDSeJHTSWPkr3au7unMDSEckBaLwMHR/animation.mp4"
-                      type="video/mp4"
-                    />
-                  </video>
-                  <div data-label="prismatic key">UNKNOWN</div>
-                </div>
-                <div>
-                  <img
-                    src="https://nftmedia.parallelnft.com/parallel-planetfall/QmWWNiwppSggPYCsUxWj3GswARnZ3tbpYPBMCUyjWyCqSo/image.png"
-                    alt="skeleton key"
-                  />
-                  <div data-label="skeleton key">UNKNOWN</div>
-                </div>
+            </div>
+            <div>
+              <img
+                src="https://nftmedia.parallelnft.com/parallel-planetfall/QmWWNiwppSggPYCsUxWj3GswARnZ3tbpYPBMCUyjWyCqSo/image.png"
+                alt="skeleton key"
+              />
+              <div data-label="skeleton key">
+                <Typewriter
+                  text={account?.then(
+                    (parallelProfile) =>
+                      parallelProfile.equipped_skeleton_keys?.[0].type
+                  )}
+                  defaultText="not found"
+                />
+                {#await account then parallelProfile}
+                  {#if parallelProfile?.equipped_skeleton_keys[0].expiry_date}
+                    <div data-label="refresh">
+                      {skeletonKeyRefresh}
+                    </div>
+                  {/if}
+                {/await}
+                <div></div>
               </div>
-            {/if}
+            </div>
           </div>
-        {/await}
+        </div>
       </td>
       <td>
         <div class="permissions-panel">
           {#await data.permissions}
-            {@render samplePermissions()}
-          {:then permissionsData}
-            {#if permissionsData}
-              {@const permissions = JSON.parse(
-                permissionsData ?? JSON.stringify(sampleSettings)
-              ).settings}
-              {#each permissions as permission}
-                <div class="permissions" data-label={permission.game_type}>
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td data-label="game overview">
-                          {#if permission.publish_game_overview}
-                            <span class="material-symbols-rounded green"
-                              >check</span
-                            >
-                          {:else}
-                            <span class="material-symbols-rounded red"
-                              >close</span
-                            >
-                          {/if}
-                        </td>
-                        <td data-label="game stream">
-                          {#if permission.include_game_stream}
-                            <span class="material-symbols-rounded green"
-                              >check</span
-                            >
-                          {:else}
-                            <span class="material-symbols-rounded red"
-                              >close</span
-                            >
-                          {/if}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td data-label="deck content">
-                          {#if permission.include_deck_content}
-                            <span class="material-symbols-rounded green"
-                              >check</span
-                            >
-                          {:else}
-                            <span class="material-symbols-rounded red"
-                              >close</span
-                            >
-                          {/if}
-                        </td>
-                        <td data-label="wallet">
-                          {#if permission.include_primary_wallet}
-                            <span class="material-symbols-rounded green"
-                              >check</span
-                            >
-                          {:else}
-                            <span class="material-symbols-rounded red"
-                              >close</span
-                            >
-                          {/if}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              {/each}
-            {:else}
-              {@render samplePermissions()}
-            {/if}
+            {@render permissionsSnippet(sampleSettings)}
+          {:then permissions}
+            {@render permissionsSnippet(permissions ?? sampleSettings)}
           {/await}
-          <a href="https://parallel.life/settings/security"
-            >manage permissions<span class="material-symbols-rounded">
-              open_in_new
-            </span>
+          <a href="{PUBLIC_PARALLEL_URL}/settings/security" target="_blank">
+            manage permissions
+            <span class="material-symbols-rounded">open_in_new</span>
           </a>
         </div>
       </td>
@@ -544,6 +468,21 @@
     flex: 1;
     display: flex;
     position: relative;
+
+    > div > div {
+      font-size: medium;
+      position: relative;
+      margin-top: 1.1em;
+      color: #8c8c8cff;
+    }
+
+    > div > div::after {
+      content: attr(data-label);
+      font-size: small;
+      position: absolute;
+      top: -1em;
+      left: 0;
+    }
   }
 
   table.parallel-account .parallel-account-link .keys video,

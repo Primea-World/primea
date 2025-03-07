@@ -10,9 +10,11 @@
   } from "$lib/parallels/parallel";
   import Icon from "$lib/parallels/Icon.svelte";
   import PlayerCard from "$lib/PlayerCard.svelte";
-  import {ParallelProfile} from "$lib/parallelProfile.js";
+  import {PUBLIC_CF_PAGES_COMMIT_SHA} from "$env/static/public";
 
-  let {data} = $props();
+  const {data} = $props();
+
+  const {user, season, account} = data;
 
   let winRate = $state(60);
 
@@ -27,20 +29,6 @@
   function showSecondWinRate() {
     winRate = 22;
   }
-
-  // player
-  // TODO: create map of wins for first/second
-  const player = {
-    id: "lofty_puma",
-    name: "Lofty Puma",
-    season: "Echoes of the Void",
-    parallel: SHROUD,
-    matches: 100,
-    wins: 60,
-    losses: 40,
-    first: 40,
-    second: 60,
-  };
 
   // paragons
   const paragons = [
@@ -190,11 +178,7 @@
   );
 </script>
 
-<PlayerCard
-  parallelProfile={data.account?.then(
-    (account) => new ParallelProfile(account)
-  )}
->
+<PlayerCard {user} {season} {account}>
   {#snippet cardDetails()}
     <div class="summary">
       <table>
@@ -271,10 +255,7 @@
       <div class="parallel-stats">
         {#each paragonStats as { paragon, total_count, win_count, loss_count }}
           <div
-            style="background-image: url(./paragons/{paragon.name?.replaceAll(
-              ' ',
-              ''
-            )}.webp); background-position-y: {paragon.focalPoint}px;"
+            style="background-image: url(/paragons/{paragon.camelCaseName}.webp?etag={PUBLIC_CF_PAGES_COMMIT_SHA}); background-position-y: {paragon.focalPoint}px;"
           >
             <p class="paragon-title" data-description={paragon.description}>
               {paragon.name}
@@ -320,10 +301,6 @@
     width: 100%;
   }
 
-  div {
-    background-color: var(--surface-color);
-  }
-
   .summary {
     background-color: #000;
   }
@@ -358,6 +335,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #00000096;
   }
 
   #first {
@@ -406,6 +384,7 @@
     border: thin solid #c5c5c5;
     position: relative;
     margin: 1em auto;
+    background-color: #13131396;
   }
 
   .parallel .parallel-title {

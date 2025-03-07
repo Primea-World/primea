@@ -9,25 +9,35 @@
     SHROUD,
     UNIVERSAL,
   } from "./parallels/parallel";
-  import {user, userName} from "./supabase";
-  import type {PageData} from "../routes/$types";
-  import {page} from "$app/state";
+  import Typewriter from "./Typewriter.svelte";
+  import type {User} from "@supabase/supabase-js";
+  import type {Database} from "./database.types";
+  import {userName} from "./util";
+  import type {ParallelPGSAccount} from "./parallelPGSAccount";
   import type {ParallelProfile} from "./parallelProfile";
 
   interface Props {
     cardDetails: Snippet<[]>;
     cardPanel: Snippet<[]>;
-    parallelProfile: Promise<ParallelProfile | null> | undefined;
+    user: User | null;
+    season: PromiseLike<Database["public"]["Tables"]["seasons"]["Row"] | null>;
+    account: Promise<ParallelProfile> | Promise<ParallelPGSAccount> | null;
   }
 
-  const {cardDetails, cardPanel, parallelProfile}: Props = $props();
+  const {cardDetails, cardPanel, season, user, account}: Props = $props();
 
-  const pageData = page.data as PageData;
+  let username = account?.then((account) => {
+    if (!account) {
+      return null;
+    } else if ("django_profile" in account) {
+      return account.django_profile.username;
+    } else {
+      return account.username;
+    }
+  });
 
-  const season = pageData.season;
-
-  const seasonParallel = season.then((data) => {
-    switch (data.data?.parallel) {
+  const seasonParallel = season?.then((season) => {
+    switch (season?.parallel) {
       case "augencore":
         return AUGENCORE;
       case "earthen":
@@ -66,20 +76,16 @@
           <div class="text-ellipsis">
             USER:
             <b>
-              {#await parallelProfile}
-                {userName($user)}
-              {:then profile}
-                {userName($user, profile)}
-              {/await}
+              <Typewriter text={userName(user, username)} />
             </b>
           </div>
-          {#await season}
-            <div class="text-ellipsis">SEASON: <b>unknown</b></div>
-          {:then seasonData}
-            <div class="text-ellipsis">
-              SEASON: <b>{seasonData.data?.name}</b>
-            </div>
-          {/await}
+          <div class="text-ellipsis">
+            SEASON: <b>
+              <Typewriter
+                text={season?.then((seasonData) => seasonData?.name)}
+              />
+            </b>
+          </div>
           {#await seasonParallel then parallel}
             {#if !!parallel}
               <span id="season-parallel">
@@ -156,7 +162,7 @@
     top: 5%;
     right: 5%;
     width: 120px;
-    opacity: 70%;
+    /* opacity: 70%; */
   }
 
   .summary > div:nth-child(1) {

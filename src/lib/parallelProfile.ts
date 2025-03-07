@@ -1,4 +1,10 @@
-export class ParallelProfile {
+import { PUBLIC_PARALLEL_URL } from "$env/static/public";
+
+export const PARALLEL_ACCOUNT_ID_COOKIE_NAME = "parallel_account_id";
+
+export const PARALLEL_PROFILE_URL = `${PUBLIC_PARALLEL_URL}/api/pgs/api/v1/players/0/profiles/parallel/`;
+
+export interface ParallelProfile {
   id: number;
   account_id: number;
   xp: number;
@@ -16,7 +22,12 @@ export class ParallelProfile {
   rank_bracket?: string;
   active_keys: string[];
   equipped_apparition_keys: string[];
-  equipped_skeleton_keys: string[];
+  equipped_skeleton_keys: {
+    "transformation_id": string,
+    "type": string,
+    "key_uuid": string,
+    "expiry_date": string,
+  }[];
   key_slot: number;
   win_streak: number;
   prismatic_parallel: string;
@@ -107,61 +118,4 @@ export class ParallelProfile {
   is_elite: boolean;
   // total_glints_purchased: number;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(jsonData: any) {
-    const data = jsonData.parallel_profile;
-    this.id = data.id;
-    this.account_id = data.account_id;
-    this.xp = data.xp;
-    this.mmr = data.mmr;
-    this.matchmaking_mmr = data.matchmaking_mmr;
-    this.renown = data.renown;
-    this.rank = data.rank;
-    this.rank_bracket = data.rank_bracket;
-    this.active_keys = data.active_keys;
-    this.equipped_apparition_keys = data.equipped_apparition_keys;
-    this.equipped_skeleton_keys = data.equipped_skeleton_keys;
-    this.key_slot = data.key_slot;
-    this.win_streak = data.win_streak;
-    this.prismatic_parallel = data.prismatic_parallel;
-    this.skeleton_transformed_key = data.skeleton_transformed_key;
-    this.title = data.title;
-    this.django_profile = data.django_profile;
-    this.prime_balance = data.prime_balance;
-    this.claimable_prime = data.claimable_prime;
-    this.game_reward_prime = data.game_reward_prime;
-    this.prime_estimation_for_today = data.prime_estimation_for_today;
-    this.is_super_user = data.is_super_user;
-    this.open_missions = data.open_missions;
-    this.free_reroll_left = data.free_reroll_left;
-    this.weekly_mission = data.weekly_mission;
-    this.bounty = data.bounty;
-    // this.has_playable_deck = data.has_playable_deck;
-    this.glints = data.glints;
-    this.ranked_total_wins = data.ranked_total_wins;
-    this.ranked_total_losses = data.ranked_total_losses;
-    this.ranked_games_played = data.ranked_games_played;
-    this.unranked_total_wins = data.unranked_total_wins;
-    this.unranked_total_losses = data.unranked_total_losses;
-    this.unranked_games_played = data.unranked_games_played;
-    this.one_queue_win_streak = data.one_queue_win_streak;
-    this.one_queue_total_wins = data.one_queue_total_wins;
-    this.one_queue_total_losses = data.one_queue_total_losses;
-    this.one_queue_games_played = data.one_queue_games_played;
-    this.private_total_wins = data.private_total_wins;
-    this.private_total_losses = data.private_total_losses;
-    this.private_games_played = data.private_games_played;
-    this.rookie_total_wins = data.rookie_total_wins;
-    this.rookie_total_losses = data.rookie_total_losses;
-    this.rookie_games_played = data.rookie_games_played;
-    this.bot_total_wins = data.bot_total_wins;
-    this.bot_total_losses = data.bot_total_losses;
-    this.bot_games_played = data.bot_games_played;
-    // this.auto_claim_ready_battlepass_ids = data.auto_claim_ready_battlepass_ids;
-    // this.next_mission_date = new Date(data.next_mission_date);
-    this.avatar = data.avatar;
-    this.has_early_concede_penalty = data.has_early_concede_penalty;
-    this.is_elite = data.is_elite;
-    // this.total_glints_purchased = data.total_glints_purchased;
-  }
 }

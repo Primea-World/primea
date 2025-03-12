@@ -10,10 +10,10 @@ export interface ParallelMatchOverview {
   player_two_name?: string;
   player_two_id?: string;
   completed: boolean;
-  player_one_deck_parallel?: "augencore" | "earthen" | "kathari" | "marcolian" | "shroud" | "universal" | null | undefined;
-  player_two_deck_parallel?: "augencore" | "earthen" | "kathari" | "marcolian" | "shroud" | "universal" | null | undefined;
-  player_one_deck_paragon?: string;
-  player_two_deck_paragon?: string;
+  player_one_deck_parallel: "augencore" | "earthen" | "kathari" | "marcolian" | "shroud" | "universal";
+  player_two_deck_parallel: "augencore" | "earthen" | "kathari" | "marcolian" | "shroud" | "universal";
+  player_one_deck_paragon: "Arak"| "Jahn"| "JuggernautWorkshop"| "Gaffar"| "Nehemiah"| "Shoshanna"| "Aetio"| "GnaeusValerusAlpha"| "ScipiusMagnusAlpha"| "ArmouredDivisionHQ"| "CatherineLapointe"| "Lemieux"| "Brand"| "NewDawn"| "Niamh"| "unknown";
+  player_two_deck_paragon: "Arak"| "Jahn"| "JuggernautWorkshop"| "Gaffar"| "Nehemiah"| "Shoshanna"| "Aetio"| "GnaeusValerusAlpha"| "ScipiusMagnusAlpha"| "ArmouredDivisionHQ"| "CatherineLapointe"| "Lemieux"| "Brand"| "NewDawn"| "Niamh"| "unknown";
   winner_name?: string;
   winner_id?: string;
 }

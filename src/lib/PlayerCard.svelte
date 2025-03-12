@@ -2,12 +2,12 @@
   import type {Snippet} from "svelte";
   import Icon from "./parallels/Icon.svelte";
   import {
-    AUGENCORE,
-    EARTHEN,
-    KATHARI,
-    MARCOLIAN,
-    SHROUD,
-    UNIVERSAL,
+    Augencore,
+    Earthen,
+    Kathari,
+    Marcolian,
+    Shroud,
+    Universal,
   } from "./parallels/parallel";
   import Typewriter from "./Typewriter.svelte";
   import type {User} from "@supabase/supabase-js";
@@ -15,6 +15,7 @@
   import {userName} from "./util";
   import type {ParallelPGSAccount} from "./parallelPGSAccount";
   import type {ParallelProfile} from "./parallelProfile";
+  import CircularProgress from "./CircularProgress.svelte";
 
   interface Props {
     cardDetails: Snippet<[]>;
@@ -39,18 +40,18 @@
   const seasonParallel = season?.then((season) => {
     switch (season?.parallel) {
       case "augencore":
-        return AUGENCORE;
+        return Augencore;
       case "earthen":
-        return EARTHEN;
+        return Earthen;
       case "kathari":
-        return KATHARI;
+        return Kathari;
       case "marcolian":
-        return MARCOLIAN;
+        return Marcolian;
       case "shroud":
-        return SHROUD;
+        return Shroud;
       case "universal":
       default:
-        return UNIVERSAL;
+        return Universal;
     }
   });
 </script>
@@ -93,11 +94,40 @@
               </span>
             {/if}
           {/await}
-          {@render cardDetails()}
+          {#if cardDetails}
+            {@render cardDetails?.()}
+          {:else}
+            <div class="details">
+              <table>
+                <colgroup>
+                  <col style="width: 50%" />
+                  <col style="width: 50%" />
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <td data-label="access">denied</td>
+                    <td data-label="matches (7D)">30</td>
+                  </tr>
+                  <tr>
+                    <td data-label="matches won">60</td>
+                    <td data-label="matches lost">40</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          {/if}
         </div>
       </td>
       <td class="stats">
-        {@render cardPanel()}
+        {#if cardPanel}
+          {@render cardPanel?.()}
+        {:else}
+          <div class="panel">
+            <CircularProgress radius={100} pathWidth={5} value={60} />
+            <span id="first" role="contentinfo" data-label="1st"> 40 </span>
+            <span id="second" role="contentinfo" data-label="2nd"> 60 </span>
+          </div>
+        {/if}
       </td>
     </tr>
     <tr> </tr>
@@ -200,5 +230,70 @@
   .stats-header {
     justify-content: space-between;
     padding: 1em 0;
+  }
+
+  .details table {
+    margin-top: 1em;
+    border-collapse: collapse;
+
+    td {
+      position: relative;
+      border-left: 4px solid #def141;
+      padding-left: 8px;
+      padding-top: 0.75em;
+      font-weight: 500;
+      font-size: xx-large;
+    }
+
+    td::before {
+      position: absolute;
+      top: 0;
+      left: 8px;
+      content: attr(data-label);
+      text-transform: uppercase;
+      font-size: large;
+      font-weight: lighter;
+    }
+  }
+
+  .stats .panel {
+    height: 263px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #00000096;
+  }
+
+  #first {
+    position: absolute;
+    font-size: x-large;
+    top: 1em;
+    left: 1em;
+  }
+
+  #first::before {
+    content: attr(data-label);
+    font-size: small;
+    font-weight: lighter;
+    position: absolute;
+    top: -1.1em;
+    left: 0;
+  }
+
+  #second {
+    position: absolute;
+    font-size: x-large;
+    top: 1em;
+    right: 1em;
+  }
+
+  #second::before {
+    content: attr(data-label);
+    font-size: small;
+    font-weight: lighter;
+    position: absolute;
+    top: -1.1em;
+    right: 0;
   }
 </style>

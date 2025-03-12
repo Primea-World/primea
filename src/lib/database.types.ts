@@ -276,16 +276,12 @@ export type Database = {
           game_start_time: string
           game_type: Database["public"]["Enums"]["game_type"]
           match_id: string
-          player_one_deck_paragon: string | null
-          player_one_deck_parallel:
-            | Database["public"]["Enums"]["parallel"]
-            | null
+          player_one_deck_paragon: Database["public"]["Enums"]["paragon_name"]
+          player_one_deck_parallel: Database["public"]["Enums"]["parallel"]
           player_one_id: string | null
           player_one_name: string | null
-          player_two_deck_paragon: string | null
-          player_two_deck_parallel:
-            | Database["public"]["Enums"]["parallel"]
-            | null
+          player_two_deck_paragon: Database["public"]["Enums"]["paragon_name"]
+          player_two_deck_parallel: Database["public"]["Enums"]["parallel"]
           player_two_id: string | null
           player_two_name: string | null
           winner_id: string | null
@@ -297,16 +293,12 @@ export type Database = {
           game_start_time: string
           game_type: Database["public"]["Enums"]["game_type"]
           match_id: string
-          player_one_deck_paragon?: string | null
-          player_one_deck_parallel?:
-            | Database["public"]["Enums"]["parallel"]
-            | null
+          player_one_deck_paragon: Database["public"]["Enums"]["paragon_name"]
+          player_one_deck_parallel: Database["public"]["Enums"]["parallel"]
           player_one_id?: string | null
           player_one_name?: string | null
-          player_two_deck_paragon?: string | null
-          player_two_deck_parallel?:
-            | Database["public"]["Enums"]["parallel"]
-            | null
+          player_two_deck_paragon: Database["public"]["Enums"]["paragon_name"]
+          player_two_deck_parallel: Database["public"]["Enums"]["parallel"]
           player_two_id?: string | null
           player_two_name?: string | null
           winner_id?: string | null
@@ -318,16 +310,12 @@ export type Database = {
           game_start_time?: string
           game_type?: Database["public"]["Enums"]["game_type"]
           match_id?: string
-          player_one_deck_paragon?: string | null
-          player_one_deck_parallel?:
-            | Database["public"]["Enums"]["parallel"]
-            | null
+          player_one_deck_paragon?: Database["public"]["Enums"]["paragon_name"]
+          player_one_deck_parallel?: Database["public"]["Enums"]["parallel"]
           player_one_id?: string | null
           player_one_name?: string | null
-          player_two_deck_paragon?: string | null
-          player_two_deck_parallel?:
-            | Database["public"]["Enums"]["parallel"]
-            | null
+          player_two_deck_paragon?: Database["public"]["Enums"]["paragon_name"]
+          player_two_deck_parallel?: Database["public"]["Enums"]["parallel"]
           player_two_id?: string | null
           player_two_name?: string | null
           winner_id?: string | null
@@ -468,6 +456,23 @@ export type Database = {
         | "kathari"
         | "marcolian"
         | "shroud"
+      paragon_name:
+        | "Arak"
+        | "Jahn"
+        | "JuggernautWorkshop"
+        | "Gaffar"
+        | "Nehemiah"
+        | "Shoshanna"
+        | "Aetio"
+        | "GnaeusValerusAlpha"
+        | "ScipiusMagnusAlpha"
+        | "ArmouredDivisionHQ"
+        | "CatherineLapointe"
+        | "Lemieux"
+        | "Brand"
+        | "NewDawn"
+        | "Niamh"
+        | "unknown"
       parallel:
         | "augencore"
         | "earthen"

@@ -1,5 +1,7 @@
 import type { Database } from '$lib/database.types';
-import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
+import type { SupabaseClient, User } from '@supabase/supabase-js';
+import type { UplinkDetailsParameters } from './routes/PageCardDetails.svelte';
+import type { ProfileDetailsParameters } from './routes/profile/PageCardDetails.svelte';
 
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
@@ -8,12 +10,14 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			supabase: SupabaseClient<Database>;
-			safeGetSession: () => Promise<{ session: Session | null, user: User | null }>;
-			session: Session | null;
 			user: User | null;
 		}
 		interface PageData {
-			session: Session | null
+			cardDetails: Snippet;
+			cardPanel: Snippet;
+			uplinkData?: UplinkDetailsParameters;
+			uplinkPanel?: UplinkPanelParameters;
+			profileData?: ProfileDetailsParameters;
 		}
 		interface PageState {
 			showModal: boolean;

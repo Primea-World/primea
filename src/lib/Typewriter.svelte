@@ -3,8 +3,8 @@
 
   interface Props {
     text:
-      | Promise<string | undefined>
-      | PromiseLike<string | undefined>
+      | Promise<string | number | null | undefined>
+      | PromiseLike<string | number | null | undefined>
       | undefined;
     placeholder?: string;
     defaultText?: string;
@@ -57,8 +57,12 @@
       await type(placeholder);
     }
     const value = await text;
-    if (value && value.length > 0) {
-      await type(value);
+    if (
+      value !== undefined &&
+      value !== null &&
+      value.toLocaleString().length > 0
+    ) {
+      await type(value.toLocaleString());
     } else {
       await type(defaultText);
     }

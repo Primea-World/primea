@@ -14,14 +14,25 @@
   const amber = color("#ffc317")!;
   const green = color("#4caf50")!;
 
+  interface Props {
+    value?: number;
+    radius?: number;
+    pathWidth?: number;
+    duration?: number;
+    trackColor?: string;
+    valueColorRange?: (HSLColor | RGBColor)[];
+    label?: string;
+  }
+
   let {
     value = $bindable(0),
     radius = 50,
     pathWidth = 10,
-    duration: animationDuration = 1000,
+    duration: animationDuration = 500,
     trackColor = "var(--text-dim)",
     valueColorRange = [green, amber, red],
-  } = $props();
+    label,
+  }: Props = $props();
 
   let paddedRadius = $derived(radius + 10);
   let paddedDiameter = $derived(paddedRadius * 2);
@@ -76,12 +87,22 @@
     x={paddedRadius}
     y={paddedRadius}
     text-anchor="middle"
-    dy="8"
+    dy={!label || label.length == 0 ? "8" : "0"}
     fill="var(--text-color)"
-    >{(((circumference - offset.current) / circumference) * 100).toFixed(
-      0
-    )}%</text
   >
+    {(((circumference - offset.current) / circumference) * 100).toFixed(0)}%
+  </text>
+  {#if label && label.length > 0}
+    <text
+      x={paddedRadius}
+      y={paddedRadius}
+      text-anchor="middle"
+      dy="1.5rem"
+      fill="var(--text-color)"
+    >
+      {label}
+    </text>
+  {/if}
 </svg>
 
 <style>

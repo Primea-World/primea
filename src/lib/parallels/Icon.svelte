@@ -1,23 +1,24 @@
 <script lang="ts">
+  import {draw} from "svelte/transition";
   import {
-    AUGENCORE,
-    EARTHEN,
-    KATHARI,
-    MARCOLIAN,
-    SHROUD,
-    UNIVERSAL,
+    Augencore,
+    Earthen,
+    Kathari,
+    Marcolian,
+    Shroud,
+    Universal,
     type Parallel,
   } from "./parallel";
 
   interface Props {
-    parallel: Parallel;
+    parallel: typeof Parallel;
   }
 
   let {parallel}: Props = $props();
 </script>
 
 <div style="color: {parallel.color}; width: 6em;">
-  {#if parallel == AUGENCORE}
+  {#if parallel === Augencore}
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -28,7 +29,7 @@
         fill="currentColor"
       ></path>
     </svg>
-  {:else if parallel == EARTHEN}<svg
+  {:else if parallel === Earthen}<svg
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +42,7 @@
         fill="currentColor"
       ></path>
     </svg>
-  {:else if parallel == KATHARI}
+  {:else if parallel === Kathari}
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -52,7 +53,7 @@
         fill="currentColor"
       ></path>
     </svg>
-  {:else if parallel == MARCOLIAN}
+  {:else if parallel === Marcolian}
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -66,7 +67,7 @@
         fill="currentColor"
       ></path>
     </svg>
-  {:else if parallel == SHROUD}
+  {:else if parallel === Shroud}
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -89,15 +90,17 @@
         fill="currentColor"
       ></path>
     </svg>
-  {:else if parallel == UNIVERSAL}
+  {:else if parallel === Universal}
     <svg viewBox="0 0 13.501283 31.427975">
       <g transform="translate(0.01837155,-0.29632568)">
         <path
+          transition:draw={{duration: 15000}}
           d="m 2.44239,28.5433 c -0.12591,0.2729 -0.19567,0.5683 -0.20513,0.8687 -0.00947,0.3003 0.04155,0.5995 0.15002,0.8798 0.10848,0.2802 0.27219,0.5358 0.48141,0.7515 0.20922,0.2157 0.45967,0.3872 0.73647,0.5042 0.2768,0.117 0.5743,0.1771 0.87481,0.1768 0.30051,-2e-4 0.59789,-0.0609 0.87448,-0.1784 C 5.63103,31.4284 5.88117,31.2564 6.08999,31.0403 6.29881,30.8242 6.46205,30.5684 6.57,30.2879 l 6.6886,-15.6155 c 0.1326,-0.2738 0.2081,-0.5718 0.222,-0.8757 0.0138,-0.304 -0.0343,-0.6076 -0.1415,-0.8923 -0.1072,-0.2848 -0.2712,-0.5448 -0.482,-0.7642 -0.2108,-0.2194 -0.464,-0.3936 -0.7443,-0.512 -0.2803,-0.1185 -0.5817,-0.1787 -0.8859,-0.177 -0.3043,0.0017 -0.605,0.0653 -0.8839,0.1868 -0.279,0.1216 -0.53023,0.2987 -0.73858,0.5204 -0.20835,0.2217 -0.36942,0.4835 -0.47341,0.7694 z"
           fill="#def141"
           id="path9"
         />
         <path
+          transition:draw={{duration: 15000}}
           d="m 0.197151,17.3276 c -0.1293437,0.2733 -0.20207829,0.5699 -0.2138286,0.872 -0.0117504,0.3021 0.0377263,0.6034 0.1454536,0.8859 0.107728,0.2825 0.27148,0.5402 0.481408,0.7578 0.209927,0.2176 0.461686,0.3904 0.740146,0.5081 0.27846,0.1178 0.57785,0.178 0.88018,0.177 0.30232,-9e-4 0.60133,-0.063 0.87903,-0.1825 0.2777,-0.1196 0.52836,-0.294 0.7369,-0.5129 0.20854,-0.2189 0.37065,-0.4777 0.47658,-0.7608 L 11.0186,3.45666 C 11.1485,3.16939 11.2157,2.85776 11.2158,2.54251 11.2168,2.02118 11.0361,1.51579 10.7047,1.1133 10.3734,0.710805 9.91214,0.43638 9.40032,0.337239 8.8885,0.238097 8.35813,0.320439 7.90047,0.570096 7.4428,0.819754 7.08646,1.22112 6.89275,1.70512 Z"
           fill="#def141"
           id="path10"

@@ -8,6 +8,8 @@
     toParallelMatchOverview,
     type ParallelMatchOverview,
   } from "$lib/parallelMatchOverview.js";
+  import {MONTHS, PARAGON_NAMES, relativeTimeDifference} from "$lib/util.js";
+  import {Paragon} from "$lib/parallels/parallel.js";
 
   const {data} = $props();
 
@@ -29,6 +31,20 @@
     winRate = 22;
   }
 
+  function matchTime(match: ParallelMatchOverview) {
+    return `${MONTHS.get(match.game_start_time.getMonth())} ${match.game_start_time.getDate().toString().padStart(2, "0")} ${(
+      match.game_start_time.getHours() % 12
+    )
+      .toString()
+      .padStart(2, "0")}:${match.game_start_time
+      .getMinutes()
+      .toString()
+      .padStart(
+        2,
+        "0"
+      )} ${match.game_start_time.getHours() >= 12 ? "PM" : "AM"}`;
+  }
+
   onMount(async () => {
     const lastMatch = await supabase
       .from("matches")
@@ -37,17 +53,6 @@
       .limit(1);
 
     Promise.race([
-      account?.then((account) => {
-        // if account is undefined, reject the promise
-        if (!account) {
-          console.log("account rejected", account);
-          return Promise.reject();
-        }
-        return {
-          account_id: account?.django_profile.account_id,
-          username: account?.django_profile.username,
-        };
-      }),
       new Promise(
         async (
           resolve: (value: {account_id: string; username: string}) => void,
@@ -83,7 +88,6 @@
         }
       ),
     ])?.then(async (account) => {
-      console.log("account", account);
       if (!account) {
         return;
       }
@@ -125,6 +129,14 @@
         await supabase.from("matches").upsert(
           fetched.map((match) => ({
             ...match,
+            player_one_deck_paragon:
+              PARAGON_NAMES.find((paragon) =>
+                match.player_one_deck_paragon.startsWith(paragon)
+              ) ?? "unknown",
+            player_two_deck_paragon:
+              PARAGON_NAMES.find((paragon) =>
+                match.player_two_deck_paragon.startsWith(paragon)
+              ) ?? "unknown",
             game_end_time: new Date(match.game_end_time).toISOString(),
             game_start_time: new Date(match.game_start_time).toISOString(),
           })),
@@ -146,7 +158,7 @@
     const data =
       // .gte("game_start_time", season.season_start)
       // .lte("game_start_time", season.season_end)
-      (await supabase.from("matches").select("*")).data;
+      (await supabase.from("matches").select("*").limit(20)).data;
     if (data) {
       for (let index = 0; index < (data?.length ?? 0); index++) {
         const element = data[index];
@@ -156,7 +168,7 @@
   });
 </script>
 
-<PlayerCard {user} account={pgsAccount ?? account} {season}>
+<!-- <PlayerCard {user} account={pgsAccount ?? account} {season}>
   {#snippet cardDetails()}
     <div class="summary">
       <table>
@@ -202,37 +214,130 @@
       </span>
     </div>
   {/snippet}
-</PlayerCard>
+</PlayerCard> -->
 
 <div class="matches">
   {#await pgsAccount then account}
     {#each matches as match (match.match_id)}
+      {@const playerOneParagon = Paragon.fromString(
+        match.player_one_deck_paragon
+      )}
+      {@const playerTwoParagon = Paragon.fromString(
+        match.player_two_deck_paragon
+      )}
+      {@const onPlayText =
+        match.player_one_id == account?.account_uuid
+          ? "on the play"
+          : "on the draw"}
       <div class="match">
-        <div class="self">
-          {#if account?.account_uuid}
-            {match.player_one_deck_parallel} - {match.player_one_deck_paragon}
+        <div class="match-paragon">
+          {#if account?.account_uuid == match.player_one_id}
+            <img
+              class="paragon"
+              src="/paragons/{match.player_one_deck_paragon}.webp"
+              alt={match.player_one_deck_paragon}
+            />
+            <div>
+              <div class="username">{match.player_one_name}</div>
+              <div class="paragon-name">
+                {playerOneParagon.name}
+              </div>
+              <div
+                class="paragon-description"
+                style="color: {playerOneParagon.parallel.color};"
+              >
+                {playerOneParagon.description}
+              </div>
+            </div>
+          {:else}
+            <img
+              class="paragon"
+              src="/paragons/{match.player_two_deck_paragon}.webp"
+              alt={match.player_two_deck_paragon}
+            />
+            <div>
+              <div class="username">{match.player_two_name}</div>
+              <div class="paragon-name">
+                {playerTwoParagon.name}
+              </div>
+              <div
+                class="paragon-description"
+                style="color: {playerTwoParagon.parallel.color};"
+              >
+                {playerTwoParagon.description}
+              </div>
+            </div>
           {/if}
         </div>
-        <div class="summary">
-          <h2>Match {match.match_id}</h2>
-          <p>{match.game_start_time}</p>
-
-          <p>Winner: {match.winner_name}</p>
-          <p>Duration: {match.game_end_time} minutes</p>
+        <div
+          class="match-summary"
+          data-time={matchTime(match)}
+          data-duration={relativeTimeDifference(
+            match.game_end_time.getTime(),
+            match.game_start_time.getTime(),
+            true,
+            false
+          )}
+        >
+          <div
+            data-label={onPlayText}
+            class:win={account?.account_uuid == match.winner_id}
+            class:loss={account?.account_uuid != match.winner_id}
+          >
+            {#if account?.account_uuid == match.winner_id}
+              win
+            {:else}
+              loss
+            {/if}
+          </div>
         </div>
-        <div class="opponent">
-          {#if account?.account_uuid}
-            {match.player_two_deck_parallel} - {match.player_two_deck_paragon}
+        <div class="match-paragon opponent">
+          {#if account?.account_uuid == match.player_one_id}
+            <div>
+              <div class="username">{match.player_two_name}</div>
+              <div
+                class="paragon-name"
+                data-title={playerTwoParagon.description}
+                data-color={playerTwoParagon.parallel.color.slice(1)}
+              >
+                {playerTwoParagon.name}
+              </div>
+              <div
+                class="paragon-description"
+                style="color: {playerTwoParagon.parallel.color};"
+              >
+                {playerTwoParagon.description}
+              </div>
+            </div>
+            <img
+              class="paragon"
+              src="/paragons/{match.player_two_deck_paragon}.webp"
+              alt={match.player_two_deck_paragon}
+            />
+          {:else}
+            <div>
+              <div class="username">{match.player_one_name}</div>
+              <div
+                class="paragon-name"
+                data-title={playerOneParagon.description}
+                data-color={playerOneParagon.parallel.color}
+              >
+                {playerOneParagon.name}
+              </div>
+              <div
+                class="paragon-description"
+                style="color: {playerOneParagon.parallel.color};"
+              >
+                {playerOneParagon.description}
+              </div>
+            </div>
+            <img
+              class="paragon"
+              src="/paragons/{match.player_one_deck_paragon}.webp"
+              alt={match.player_one_deck_paragon}
+            />
           {/if}
         </div>
-        <!-- <div class="match-header">
-          <h2>Match {match.match_id}</h2>
-          <p>{match.game_start_time}</p>
-        </div>
-        <div class="match-body">
-          <p>Winner: {match.winner_name}</p>
-          <p>Duration: {match.game_end_time} minutes</p>
-        </div> -->
       </div>
     {:else}
       <div>No Matches</div>
@@ -321,8 +426,140 @@
     > .match {
       display: grid;
       grid-auto-flow: column;
+      grid-template-columns: 1fr 1fr 1fr;
       align-items: center;
       justify-content: space-around;
+      padding: 1em;
+      margin: 1em 0;
+      background-color: #000000b6;
+
+      .match-paragon {
+        display: flex;
+        justify-content: flex-start;
+
+        .username {
+          font-size: x-large;
+          padding: 0 0.5rem;
+        }
+
+        > div {
+          flex-grow: 1;
+
+          .paragon-name {
+            font-size: smaller;
+            text-transform: uppercase;
+            font-weight: lighter;
+            padding: 0 0.5rem;
+            position: relative;
+          }
+
+          .paragon-description {
+            padding: 0 0.5rem;
+            font-size: x-small;
+            font-weight: 700;
+            text-transform: uppercase;
+          }
+        }
+
+        &.opponent {
+          text-align: end;
+          justify-content: flex-end;
+        }
+
+        &.opponent .paragon-name::after {
+          left: inherit;
+          right: 0;
+        }
+      }
+
+      .paragon {
+        aspect-ratio: 25 / 30;
+        max-width: 125px;
+        object-fit: cover;
+        object-position: top;
+        position: relative;
+      }
+
+      .paragon::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: white; /* Adjust to match the background */
+        clip-path: polygon(
+          0 0,
+          calc(100% - 20px) 0,
+          calc(100% - 20px) calc(100% - 20px),
+          0 calc(100% - 20px)
+        );
+      }
+
+      .match-summary {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+
+        &::before {
+          content: attr(data-time);
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          text-align: center;
+          text-transform: uppercase;
+          font-size: medium;
+          font-weight: lighter;
+        }
+        &::after {
+          content: attr(data-duration);
+          position: absolute;
+          top: 1.5em;
+          left: 0;
+          right: 0;
+          text-align: center;
+          text-transform: uppercase;
+          font-size: small;
+          font-weight: lighter;
+        }
+      }
+
+      .match-summary > div {
+        text-align: center;
+        font-size: xx-large;
+        text-transform: uppercase;
+        mask-image: linear-gradient(to top, black, #0000005c);
+        -webkit-mask-image: linear-gradient(to top, black, #0000005c);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--color);
+        text-shadow: 0 0 6px var(--color);
+
+        &.win {
+          --color: var(--green);
+        }
+
+        &.loss {
+          --color: var(--red);
+        }
+
+        &::after {
+          position: absolute;
+          content: attr(data-label);
+          text-transform: uppercase;
+          font-size: small;
+          font-weight: bolder;
+          bottom: 2em;
+          color: var(--text-color);
+          padding: 0.15em 0.25em;
+        }
+      }
     }
   }
 </style>

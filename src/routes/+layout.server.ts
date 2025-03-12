@@ -5,8 +5,8 @@ import { PARALLEL_PGS_URL, type ParallelPGSAccount } from "$lib/parallelPGSAccou
 import { PARALLEL_PAS_URL, type ParallelPasProfile } from "$lib/parallelPASProfile";
 
 
-export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSession }, cookies, fetch }) => {
-  const { user, session } = await safeGetSession();
+export const load: LayoutServerLoad = async ({ locals: { supabase }, cookies, fetch }) => {
+  const { data: { user } } = await supabase.auth.getUser();
 
   const nowUTC = new Date().toUTCString();
   const season = supabase
@@ -84,7 +84,6 @@ export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSessio
 
   return {
     user,
-    session,
     cookies: cookies.getAll(),
     season,
     parallelAuth,

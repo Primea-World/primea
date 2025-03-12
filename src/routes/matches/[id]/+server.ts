@@ -15,8 +15,6 @@ interface ParallelMatchOverviewResponse {
 async function* fetchMatches(fetch: Fetch, access_token: string, accountId: string, searchParams: URLSearchParams, latestMatchId: string | null) {
   let offset = parseInt(searchParams.get("offset") ?? "0");
   let hasMore = true;
-  const MAX_REQUESTS = 3;
-  let requests = 0;
 
   try {
     do {
@@ -36,12 +34,11 @@ async function* fetchMatches(fetch: Fetch, access_token: string, accountId: stri
 
       const { games, /* continuation */ } = await response.json<ParallelMatchOverviewResponse>();
 
-      if (games.length < 10 || requests >= MAX_REQUESTS) {
+      if (games.length < 10) {
         hasMore = false;
       } else {
         offset += games.length;
       }
-      requests++;
       for (const game of games) {
         if (latestMatchId && game.match_id == latestMatchId) {
           return;

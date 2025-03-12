@@ -4,10 +4,11 @@
   import {PUBLIC_SUPABASE_URL} from "$env/static/public";
   import {goto, invalidate, pushState} from "$app/navigation";
   import {onMount} from "svelte";
+  import PlayerCard from "$lib/PlayerCard.svelte";
 
   const {children, data} = $props();
 
-  const {supabase, user, session} = $derived(data);
+  const {supabase, user, session, account, season} = $derived(data);
 
   let mouseMove = $state({x: -1000, y: -1000});
 
@@ -114,6 +115,16 @@
     style="--mouse-x: {mouseMove.x}px; --mouse-y: {mouseMove.y}px;"
   ></div>
   <div class="content">
+    <PlayerCard {user} {account} {season}>
+      {#snippet cardDetails()}
+        {@const details = page.data.uplinkData ?? page.data.profileData}
+        {@render page.data.cardDetails(details)}
+      {/snippet}
+      {#snippet cardPanel()}
+        {@const panel = page.data.uplinkPanel ?? page.data.profilePanel ?? {}}
+        {@render page.data.cardPanel(panel)}
+      {/snippet}
+    </PlayerCard>
     {@render children()}
   </div>
 </div>
@@ -141,6 +152,10 @@
     --text-color: #dcdcdc;
     --text-dim: #ffffff40;
     --surface-color: #131313;
+
+    /* material colors */
+    --green: #4caf50;
+    --red: #f44336;
   }
 
   :global(dialog) {

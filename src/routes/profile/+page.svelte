@@ -66,7 +66,7 @@
   });
 </script>
 
-<PlayerCard {user} {account} {season}>
+<!-- <PlayerCard {user} {account} {season}>
   {#snippet cardDetails()}
     <div class="summary">
       <table>
@@ -162,7 +162,7 @@
       {/if}
     {/await}
   {/snippet}
-</PlayerCard>
+</PlayerCard> -->
 
 {#snippet permissionsSnippet(settings: ParallelPermissions[])}
   {#each settings as permission}
@@ -295,7 +295,7 @@
                     (parallelProfile) =>
                       parallelProfile.equipped_skeleton_keys?.[0].type
                   )}
-                  defaultText="not found"
+                  defaultText="not equipped"
                 />
                 {#await account then parallelProfile}
                   {#if parallelProfile?.equipped_skeleton_keys[0].expiry_date}
@@ -328,76 +328,6 @@
 </table>
 
 <style>
-  .summary table {
-    margin-top: 1em;
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
-  .summary td {
-    position: relative;
-    border-left: 4px solid #def141;
-    padding-left: 8px;
-    padding-top: 0.75em;
-    font-weight: 500;
-    font-size: xx-large;
-    text-transform: uppercase;
-  }
-
-  .summary td::before {
-    position: absolute;
-    top: 0;
-    left: 8px;
-    content: attr(data-label);
-    text-transform: uppercase;
-    font-size: large;
-    font-weight: lighter;
-    color: var(--text-color);
-    transition: color 0.2s;
-  }
-
-  .summary td.social {
-    overflow: hidden;
-    color: #008000;
-    transition: color 0.2s;
-    cursor: pointer;
-  }
-
-  .summary td.social.identity:hover {
-    content: "unlink";
-    overflow: hidden;
-    color: #800000;
-  }
-
-  .summary td.social.identity:hover::before {
-    content: "unlink";
-    color: #800000;
-  }
-
-  .panel {
-    position: relative;
-    width: 100%;
-    height: 263px;
-    background-position: center;
-    background-size: cover;
-  }
-
-  .panel.title {
-    background-color: #0000009c;
-    background-blend-mode: overlay;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .panel h2 {
-    text-align: center;
-    font-size: xx-large;
-    font-weight: 500;
-    text-transform: uppercase;
-  }
-
   table.parallel-account {
     width: 100%;
     border-collapse: collapse;

@@ -1,89 +1,78 @@
-class Parallel {
-  title: string;
-  color: string;
-
-  constructor(title: string, color: string) {
-    this.title = title;
-    this.color = color;
-  }
+abstract class Parallel {
+  static title: string;
+  static color: string;
 }
 
 
 class Augencore extends Parallel {
-  constructor() {
-    super('Augencore', "#FF7432");
-  }
+  static title = "Augencore";
+  static color = "#FF7432";
 }
 class Earthen extends Parallel {
-  constructor() {
-    super('Earthen', "#49BC31");
-  }
+  static title = "Earthen";
+  static color = "#49BC31";
 }
 class Kathari extends Parallel {
-  constructor() {
-    super('Kathari', "#1E90DD");
-  }
+  static title = "Kathari";
+  static color = "#1E90DD";
 }
 class Marcolian extends Parallel {
-  constructor() {
-    super('Marcolian', "#E20A1A");
-  }
+  static title = "Marcolian";
+  static color = "#E20A1A";
 }
 class Shroud extends Parallel {
-  constructor() {
-    super('Shroud', "#6438C6");
-  }
+  static title = "Shroud";
+  static color = "#6438C6";
 }
 class Universal extends Parallel {
-  constructor() {
-    super('Universal', "#FFFFFFB3");
-  }
+  static title = "Universal";
+  static color = "#FFFFFFB3";
 }
 
 abstract class Paragon {
-  abstract parallel: Parallel;
-  abstract name?: string;
-  abstract description?: string;
-  focalPoint: number = -100;
+  static parallel: typeof Parallel;
+  static name: string;
+  static description?: string;
+  static focalPoint: number = -100;
 
-  get camelCaseName(): string {
+  static get camelCaseName(): string {
     return this.name?.replaceAll(' ', '') ?? "";
   }
 
-  static fromString(str: string): Paragon {
+  static fromString(str: string): typeof Paragon {
     switch (str) {
-      case "jahn":
-        return new Jahn();
-      case "arak":
-        return new Arak();
-      case "gaffar":
-        return new Gaffar();
-      case "lemieux":
-        return new Lemieux();
-      case "catherineLapointe":
-        return new CatherineLapointe();
-      case "armouredDivisionHQ":
-        return new ArmouredDivisionHQ();
-      case "gnaeusValerusAlpha":
-        return new GnaeusValerusAlpha();
-      case "scipiusMagnusAlpha":
-        return new ScipiusMagnusAlpha();
-      case "aetio":
-        return new Aetio();
-      case "juggernautWorkshop":
-        return new JuggernautWorkshop();
-      case "brand":
-        return new Brand();
-      case "niamh":
-        return new Niamh();
-      case "newDawn":
-        return new NewDawn();
-      case "shoshanna":
-        return new Shoshanna();
-      case "nehemiah":
-        return new Nehemiah();
+      case "Jahn":
+        return Jahn;
+      case "Arak":
+        return Arak;
+      case "Gaffar":
+        return Gaffar;
+      case "Lemieux":
+        return Lemieux;
+      case "CatherineLapointe":
+        return CatherineLapointe;
+      case "ArmouredDivisionHQ":
+        return ArmouredDivisionHQ;
+      case "GnaeusValerusAlpha":
+        return GnaeusValerusAlpha;
+      case "ScipiusMagnusAlpha":
+        return ScipiusMagnusAlpha;
+      case "Aetio":
+        return Aetio;
+      case "JuggernautWorkshop":
+        return JuggernautWorkshop;
+      case "Brand":
+        return Brand;
+      case "Niamh":
+        return Niamh;
+      case "NewDawn":
+        return NewDawn;
+      case "Shoshanna":
+        return Shoshanna;
+      case "Nehemiah":
+        return Nehemiah;
       default:
-        return new Unknown();
+        return Unknown;
     }
   }
 
@@ -125,119 +114,111 @@ abstract class Paragon {
   }
 }
 
-const AUGENCORE = new Augencore();
-const EARTHEN = new Earthen();
-const KATHARI = new Kathari();
-const MARCOLIAN = new Marcolian();
-const SHROUD = new Shroud();
-const UNIVERSAL = new Universal();
-
 class Unknown extends Paragon {
-  parallel = UNIVERSAL;
-  name = "Unknown";
-  description?: string;
+  static parallel = Universal;
+  static name = "Unknown";
+  static description?: string;
 }
 
 class Arak extends Paragon {
-  parallel = AUGENCORE;
-  name = "Arak";
-  description = "Combat Overseer";
-  focalPoint: number = -65;
+  static parallel = Augencore;
+  static name = "Arak";
+  static description = "Combat Overseer";
+  static focalPoint: number = -65;
 }
 class Jahn extends Paragon {
-  parallel = AUGENCORE;
-  name = "Jahn";
-  description = "Chief Engineer";
-  focalPoint: number = -70;
+  static parallel = Augencore;
+  static name = "Jahn";
+  static description = "Chief Engineer";
+  static focalPoint: number = -70;
 
 }
 class JuggernautWorkshop extends Paragon {
-  parallel = AUGENCORE;
-  name = "Juggernaut Workshop";
-  description?: string;
-  focalPoint: number = -190;
+  static parallel = Augencore;
+  static name = "Juggernaut Workshop";
+  static description?: string;
+  static focalPoint: number = -190;
 }
 
 class Gaffar extends Paragon {
-  parallel = EARTHEN;
-  name = "Gaffar";
-  description = "Arbiter of Earth";
+  static parallel = Earthen;
+  static name = "Gaffar";
+  static description = "Arbiter of Earth";
 }
 class Nehemiah extends Paragon {
-  parallel = EARTHEN;
-  name = "Nehemiah";
-  description = "Defender of Earth";
+  static parallel = Earthen;
+  static name = "Nehemiah";
+  static description = "Defender of Earth";
 }
 class Shoshanna extends Paragon {
-  parallel = EARTHEN;
-  name = "Shoshanna";
-  description = "Rebuilder of Earth";
+  static parallel = Earthen;
+  static name = "Shoshanna";
+  static description = "Rebuilder of Earth";
 }
 
 class Aetio extends Paragon {
-  parallel = KATHARI;
-  name = "Aetio";
-  description = "Exalted Hydrolist";
-  focalPoint: number = -50;
+  static parallel = Kathari;
+  static name = "Aetio";
+  static description = "Exalted Hydrolist";
+  static focalPoint: number = -50;
 }
 class GnaeusValerusAlpha extends Paragon {
-  parallel = KATHARI;
-  name = "Gnaeus Valerus Alpha";
-  description?: string;
-  focalPoint: number = -285;
+  static parallel = Kathari;
+  static name = "Gnaeus Valerus Alpha";
+  static description?: string;
+  static focalPoint: number = -285;
 }
 class ScipiusMagnusAlpha extends Paragon {
-  parallel = KATHARI;
-  name = "Scipius Magnus Alpha";
-  description?: string;
-  focalPoint: number = -20;
+  static parallel = Kathari;
+  static name = "Scipius Magnus Alpha";
+  static description?: string;
+  static focalPoint: number = -20;
 }
 
 class ArmouredDivisionHQ extends Paragon {
-  parallel = MARCOLIAN;
-  name = "Armoured Division HQ";
-  description?: string;
-  focalPoint: number = -133;
+  static parallel = Marcolian;
+  static name = "Armoured Division HQ";
+  static description?: string;
+  static focalPoint: number = -133;
 }
 class CatherineLapointe extends Paragon {
-  parallel = MARCOLIAN;
-  name = "Catherine Lapointe";
-  description = "Mad General";
-  focalPoint: number = -25;
+  static parallel = Marcolian;
+  static name = "Catherine Lapointe";
+  static description = "Mad General";
+  static focalPoint: number = -25;
 }
 class Lemieux extends Paragon {
-  parallel = MARCOLIAN;
-  name = "Lemieux";
-  description = "Master Commando";
-  focalPoint: number = -155;
+  static parallel = Marcolian;
+  static name = "Lemieux";
+  static description = "Master Commando";
+  static focalPoint: number = -155;
 }
 
 class Brand extends Paragon {
-  parallel = SHROUD;
-  name = "Brand";
-  description = "Eternal Steward";
-  focalPoint: number = -45;
+  static parallel = Shroud;
+  static name = "Brand";
+  static description = "Eternal Steward";
+  static focalPoint: number = -45;
 }
 class NewDawn extends Paragon {
-  parallel = SHROUD;
-  name = "New Dawn";
-  description?: string;
-  focalPoint: number = -165;
+  static parallel = Shroud;
+  static name = "New Dawn";
+  static description?: string;
+  static focalPoint: number = -165;
 }
 class Niamh extends Paragon {
-  parallel = SHROUD;
-  name = "Niamh";
-  description = "Wielder of Faith";
+  static parallel = Shroud;
+  static name = "Niamh";
+  static description = "Wielder of Faith";
 }
 
 export {
   Parallel,
-  AUGENCORE,
-  EARTHEN,
-  KATHARI,
-  MARCOLIAN,
-  SHROUD,
-  UNIVERSAL,
+  Augencore,
+  Earthen,
+  Kathari,
+  Marcolian,
+  Shroud,
   Universal,
   Paragon,
   Unknown,

@@ -122,6 +122,7 @@
       {/snippet}
       {#snippet cardPanel()}
         {@const panel = page.data.uplinkPanel ?? page.data.profilePanel ?? {}}
+        {@debug panel}
         {@render page.data.cardPanel(panel)}
       {/snippet}
     </PlayerCard>

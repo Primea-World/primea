@@ -1,40 +1,28 @@
 import type { ParallelPermissions } from "$lib/parallelPermissions";
-import type { AuthError, OAuthResponse, SignInWithOAuthCredentials, User, UserIdentity } from "@supabase/supabase-js";
-import { cardDetails } from "./PageCardDetails.svelte";
-import { cardPanel } from "./PageCardPanel.svelte";
-import type { ParallelProfile } from "$lib/parallelProfile";
+import { cardDetails, type ProfileDetailsParameters } from "./PageCardDetails.svelte";
+import { cardPanel, type ProfilePanelParameters } from "./PageCardPanel.svelte";
 
 export const ssr = false;
 
 export const load = async ({ parent, fetch }) => {
   const { supabase, user, account, parallelAuth, pasProfile } = await parent();
 
-  const profileData: {
-    unlinkIdentity: (identity: UserIdentity) => Promise<
-      | {
-        data: unknown;
-        error: null;
-      }
-      | {
-        data: null;
-        error: AuthError;
-      }
-    >,
-    linkIdentity: (
-      credentials: SignInWithOAuthCredentials
-    ) => Promise<OAuthResponse>,
-    user: User | null,
-    account: Promise<ParallelProfile> | null
-  } = {
+  const profileData: ProfileDetailsParameters = {
     linkIdentity: supabase.auth.linkIdentity,
     unlinkIdentity: supabase.auth.unlinkIdentity,
     user,
     account
   };
 
+  const profilePanel: ProfilePanelParameters = {
+    user,
+    account,
+  };
+
   if (!parallelAuth || !pasProfile) {
     return {
       profileData,
+      profilePanel,
       permissions: null,
     };
   }
@@ -47,6 +35,7 @@ export const load = async ({ parent, fetch }) => {
     cardDetails,
     cardPanel,
     profileData,
+    profilePanel,
     permissions,
   }
 };

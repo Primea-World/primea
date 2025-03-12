@@ -13,7 +13,7 @@ const config = {
 		},
 		platformProxy: {
 			configPath: 'wrangler.toml',
-			// environment: undefined,
+			environment: undefined,
 			experimentalJsonConfig: false,
 			persist: false
 		}

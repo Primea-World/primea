@@ -9,7 +9,7 @@
   "pages_build_output_dir": ".svelte-kit/cloudflare",
   "observability": {
     "enabled": true
-  }
+  },
   /**
    * Smart Placement
    * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -25,8 +25,10 @@
    * Environment Variables
    * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
    */
-  // "vars": {
-  // }
+  "vars": {
+    "PUBLIC_PARALLEL_URL": "https://parallel.life",
+    "PARALLEL_REDIRECT": "https://primea.world/oauth"
+  }
   /**
    * Note: Use secrets to store sensitive data.
    * https://developers.cloudflare.com/workers/configuration/secrets/

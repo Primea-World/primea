@@ -1,7 +1,5 @@
-import { SUPABASE_SECRET } from "$env/static/private";
-import { PUBLIC_PARALLEL_URL, PUBLIC_SUPABASE_URL } from "$env/static/public";
+import { PUBLIC_PARALLEL_URL } from "$env/static/public";
 import type { ParallelPGSAccount } from "$lib/parallelPGSAccount.js";
-import { createClient } from "@supabase/supabase-js";
 import { error, json } from "@sveltejs/kit";
 
 export const GET = async ({ params, url, fetch }) => {
@@ -18,9 +16,8 @@ export const GET = async ({ params, url, fetch }) => {
   return json(await profileResponse.json());
 }
 
-const supabase = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SECRET);
 
-export const POST = async ({ params, fetch, url }) => {
+export const POST = async ({ locals, params, fetch, url }) => {
   const supabaseId = url.searchParams.get("supabaseId");
   if (!supabaseId) {
     throw error(400, "Invalid request");
@@ -36,7 +33,7 @@ export const POST = async ({ params, fetch, url }) => {
     throw error(400, "Invalid account");
   }
 
-  const result = await supabase.auth.admin.updateUserById(supabaseId, {
+  const result = await locals.supabase.auth.admin.updateUserById(supabaseId, {
     app_metadata: {
       parallel_account: account,
     }

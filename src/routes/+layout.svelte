@@ -146,6 +146,10 @@
 <SignIn {supabase} />
 
 <style>
+  :global(html) {
+    scrollbar-gutter: stable;
+  }
+
   :global(:root) {
     --color-primary: #def141;
     --color-secondary: #131313;

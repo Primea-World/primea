@@ -1,11 +1,12 @@
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
+import { SUPABASE_SECRET } from '$env/static/private'
+import { PUBLIC_SUPABASE_URL } from '$env/static/public'
 import type { Database } from '$lib/database.types'
 import { createServerClient } from '@supabase/ssr'
 import { redirect, type Handle } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
 
 export const supabase: Handle = async ({ event, resolve }) => {
-  event.locals.supabase = createServerClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
+  event.locals.supabase = createServerClient<Database>(PUBLIC_SUPABASE_URL, SUPABASE_SECRET, {
     cookies: {
       getAll() {
         return event.cookies.getAll()

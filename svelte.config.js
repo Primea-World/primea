@@ -13,7 +13,7 @@ const config = {
 		},
 		platformProxy: {
 			configPath: 'wrangler.toml',
-			environment: undefined,
+			// environment: undefined,
 			experimentalJsonConfig: false,
 			persist: false
 		}
@@ -25,7 +25,7 @@ const config = {
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		adapter: adapter(),
 		version: {
-			name: process.env.PUBLIC_CF_PAGES_COMMIT_SHA,
+			name: process.env.CF_PAGES_COMMIT_SHA,
 		},
 	},
 };

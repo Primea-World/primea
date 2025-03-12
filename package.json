@@ -4,9 +4,8 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "git_hash": "PUBLIC_CF_PAGES_COMMIT_SHA=$(git rev-parse --short HEAD)",
-    "dev": "bun run git_hash && vite dev",
-    "build": "bun run git_hash && vite build",
+    "dev": "vite dev",
+    "build": "vite build",
     "preview": "bun run build && wrangler pages dev",
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

@@ -1,37 +1,43 @@
 <script module lang="ts">
-  import {type ParallelProfile} from "$lib/parallelProfile";
+  import type {ProfileDetailsParameters} from "$lib/playerCardData";
   import Typewriter from "$lib/Typewriter.svelte";
-  import type {
-    Provider,
-    User,
-    UserIdentity,
-    AuthError,
-    SignInWithOAuthCredentials,
-    OAuthResponse,
-  } from "@supabase/supabase-js";
+  import type {Provider, UserIdentity} from "@supabase/supabase-js";
 
-  interface ProfileDetailsParameters {
-    unlinkIdentity: (identity: UserIdentity) => Promise<
-      | {
-          data: unknown;
-          error: null;
-        }
-      | {
-          data: null;
-          error: AuthError;
-        }
-    >;
-    linkIdentity: (
-      credentials: SignInWithOAuthCredentials
-    ) => Promise<OAuthResponse>;
-    user: User | null;
-    account: Promise<ParallelProfile> | null;
-  }
-
-  export {cardDetails, type ProfileDetailsParameters};
+  export {cardDetails};
 
   const supportedProviders: Provider[] = ["twitch", "discord"];
 </script>
+
+{#snippet identityRow(
+  provider: Provider,
+  linkIdentity: ProfileDetailsParameters["linkIdentity"],
+  unlinkIdentity: ProfileDetailsParameters["unlinkIdentity"],
+  identity?: UserIdentity
+)}
+  <td
+    class="social"
+    class:identity={!!identity}
+    data-label={provider}
+    onclick={async (e) => {
+      e.preventDefault();
+      console.log(`Unlinking ${provider}`);
+      if (!!identity) {
+        await unlinkIdentity(identity);
+      } else {
+        await linkIdentity({provider});
+      }
+    }}
+  >
+    {#if identity}
+      {identity.identity_data?.name ||
+        identity.identity_data?.nickname ||
+        identity.identity_data?.email ||
+        "linked"}
+    {:else}
+      link
+    {/if}
+  </td>
+{/snippet}
 
 {#snippet cardDetails(parameters: ProfileDetailsParameters)}
   {@const {unlinkIdentity, linkIdentity, user, account} = parameters}
@@ -43,41 +49,26 @@
       </colgroup>
       <tbody>
         <tr>
-          {#each supportedProviders as provider}
-            {@const identity = user?.identities?.find(
-              (i) => i.provider == provider
-            )}
-            <td
-              class="social"
-              class:identity={!!identity}
-              data-label={provider}
-              onclick={async (e) => {
-                e.preventDefault();
-                console.log(`Unlinking ${provider}`);
-                if (!!identity) {
-                  await unlinkIdentity(identity);
-                } else {
-                  await linkIdentity({
-                    provider: provider,
-                  });
-                }
-              }}
-            >
-              {#if identity}
-                {identity.identity_data?.name ||
-                  identity.identity_data?.nickname ||
-                  identity.identity_data?.email ||
-                  "linked"}
-              {:else}
-                link
-              {/if}
-            </td>
-          {/each}
+          {#await user then userData}
+            {@const user = userData.data.user}
+            {#each supportedProviders as provider}
+              {@const identity = user?.identities?.find(
+                (i) => i.provider == provider
+              )}
+              {@render identityRow(
+                provider,
+                linkIdentity,
+                unlinkIdentity,
+                identity
+              )}
+            {/each}
+          {/await}
         </tr>
         <tr>
           <td data-label="rank">
             <Typewriter
               text={account?.then((parallelAccount) => parallelAccount.rank)}
+              defaultText="unranked"
             />
           </td>
           <td data-label="bracket">
@@ -85,6 +76,7 @@
               text={account?.then(
                 (parallelAccount) => parallelAccount.rank_bracket
               )}
+              defaultText="unranked"
             />
           </td>
         </tr>

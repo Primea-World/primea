@@ -1,4 +1,4 @@
-import { type User } from "@supabase/supabase-js";
+import { type UserResponse } from "@supabase/supabase-js";
 import { Aetio, Arak, ArmouredDivisionHQ, Brand, CatherineLapointe, Gaffar, GnaeusValerusAlpha, Jahn, JuggernautWorkshop, Lemieux, Nehemiah, NewDawn, Niamh, ScipiusMagnusAlpha, Shoshanna } from "./parallels/parallel";
 
 export const second = 1000;
@@ -23,7 +23,7 @@ export const PARAGON_NAMES: ParagonName[] = [
   Brand,
   NewDawn,
   Niamh,
-].map((paragon) => paragon.name.replaceAll(" ", ""));
+].map((paragon) => paragon.name.replaceAll(" ", "") as ParagonName);
 
 export const MONTHS: Map<number, string> = new Map([
   [0, "Jan"],
@@ -48,7 +48,7 @@ export function relativeTimeDifference(
   now: number,
   timestamp?: number,
   simpleFormat: boolean = true,
-  relativeKeyword:boolean = true,
+  relativeKeyword: boolean = true,
 ): string | null {
   if (!timestamp) {
     return null;
@@ -83,16 +83,18 @@ export function relativeTimeDifference(
 
 
 export async function userName(
-  user?: User | null,
+  user?: Promise<UserResponse>,
   username?: Promise<string | null> | null,
 ): Promise<string> {
+  const userResponse = (await user)?.data.user;
+
   return (
-    user?.app_metadata.parallel_account.username ??
+    userResponse?.app_metadata.parallel_account.username ??
     await username ??
-    user?.identities?.at(0)?.identity_data?.["full_name"] ??
-    user?.identities?.at(0)?.identity_data?.["name"] ??
-    user?.identities?.at(0)?.identity_data?.["nickname"] ??
-    user?.email ??
+    userResponse?.identities?.at(0)?.identity_data?.["full_name"] ??
+    userResponse?.identities?.at(0)?.identity_data?.["name"] ??
+    userResponse?.identities?.at(0)?.identity_data?.["nickname"] ??
+    userResponse?.email ??
     "unknown"
   );
 }

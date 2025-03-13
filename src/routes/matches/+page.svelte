@@ -1,7 +1,4 @@
 <script lang="ts">
-  import CircularProgress from "$lib/CircularProgress.svelte";
-
-  import PlayerCard from "$lib/PlayerCard.svelte";
   import {onMount} from "svelte";
   import {SvelteSet} from "svelte/reactivity";
   import {
@@ -10,26 +7,27 @@
   } from "$lib/parallelMatchOverview.js";
   import {MONTHS, PARAGON_NAMES, relativeTimeDifference} from "$lib/util.js";
   import {Paragon} from "$lib/parallels/parallel.js";
+  import {page} from "$app/state";
 
   const {data} = $props();
+  const {supabase, parallelAuth, account, pgsAccount, lastMatch} =
+    $derived(data);
+  const {matchData} = $derived(page.data);
+  const totalMatches = $derived(matchData?.totalMatches);
 
-  const {supabase, parallelAuth, user, account, season, pgsAccount} = data;
+  $effect(() => {
+    totalMatches?.then((matchResponse) => {
+      const data = matchResponse.data;
+      if (data) {
+        for (let index = 0; index < (data?.length ?? 0); index++) {
+          const element = data[index];
+          matches.add(toParallelMatchOverview(element));
+        }
+      }
+    });
+  });
 
   let matches = new SvelteSet<ParallelMatchOverview>();
-
-  let winRate = $state(60);
-
-  function showWinRate() {
-    winRate = 60;
-  }
-
-  function showFirstWinRate() {
-    winRate = 85;
-  }
-
-  function showSecondWinRate() {
-    winRate = 22;
-  }
 
   function matchTime(match: ParallelMatchOverview) {
     return `${MONTHS.get(match.game_start_time.getMonth())} ${match.game_start_time.getDate().toString().padStart(2, "0")} ${(
@@ -46,11 +44,7 @@
   }
 
   onMount(async () => {
-    const lastMatch = await supabase
-      .from("matches")
-      .select("*")
-      .order("game_start_time", {ascending: false})
-      .limit(1);
+    const lastMatchResponse = (await lastMatch).data;
 
     Promise.race([
       new Promise(
@@ -93,7 +87,7 @@
       }
 
       const resp = await fetch(
-        `/matches/${account.account_id}?token=${parallelAuth?.access_token}&lastMatch=${lastMatch.data?.at(0)?.match_id}`
+        `/matches/${account.account_id}?token=${parallelAuth?.access_token}&lastMatch=${lastMatchResponse?.match_id}`
       );
       const reader = resp.body?.getReader();
       const textDecoder = new TextDecoder();
@@ -150,71 +144,7 @@
       }
     });
   });
-
-  season.then(async (season) => {
-    if (!season) {
-      return;
-    }
-    const data =
-      // .gte("game_start_time", season.season_start)
-      // .lte("game_start_time", season.season_end)
-      (await supabase.from("matches").select("*").limit(20)).data;
-    if (data) {
-      for (let index = 0; index < (data?.length ?? 0); index++) {
-        const element = data[index];
-        matches.add(toParallelMatchOverview(element));
-      }
-    }
-  });
 </script>
-
-<!-- <PlayerCard {user} account={pgsAccount ?? account} {season}>
-  {#snippet cardDetails()}
-    <div class="summary">
-      <table>
-        <colgroup>
-          <col style="width: 50%" />
-          <col style="width: 50%" />
-        </colgroup>
-        <tbody>
-          <tr>
-            <td data-label="win streak">3</td>
-            <td data-label="MMR">30</td>
-          </tr>
-          <tr>
-            <td data-label="matches won">60</td>
-            <td data-label="matches lost">40</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  {/snippet}
-  {#snippet cardPanel()}
-    <div class="stats">
-      <CircularProgress radius={100} pathWidth={5} bind:value={winRate} />
-      <span
-        id="first"
-        role="contentinfo"
-        onmouseenter={showFirstWinRate}
-        onmouseleave={showWinRate}
-        onfocus={showFirstWinRate}
-        data-label="1st"
-      >
-        40
-      </span>
-      <span
-        id="second"
-        role="contentinfo"
-        onmouseenter={showSecondWinRate}
-        onmouseleave={showWinRate}
-        onfocus={showSecondWinRate}
-        data-label="2nd"
-      >
-        60
-      </span>
-    </div>
-  {/snippet}
-</PlayerCard> -->
 
 <div class="matches">
   {#await pgsAccount then account}
@@ -346,79 +276,6 @@
 </div>
 
 <style>
-  table {
-    width: 100%;
-  }
-
-  .summary {
-    background-color: #000;
-  }
-
-  .summary table {
-    margin-top: 1em;
-    border-collapse: collapse;
-  }
-
-  .summary td {
-    position: relative;
-    border-left: 4px solid #def141;
-    padding-left: 8px;
-    padding-top: 0.75em;
-    font-weight: 500;
-    font-size: xx-large;
-  }
-
-  .summary td::before {
-    position: absolute;
-    top: 0;
-    left: 8px;
-    content: attr(data-label);
-    text-transform: uppercase;
-    font-size: large;
-    font-weight: lighter;
-  }
-
-  .stats {
-    height: 263px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #00000096;
-  }
-
-  #first {
-    position: absolute;
-    font-size: x-large;
-    top: 1em;
-    left: 1em;
-  }
-
-  #first::before {
-    content: attr(data-label);
-    font-size: small;
-    font-weight: lighter;
-    position: absolute;
-    top: -1.1em;
-    left: 0;
-  }
-
-  #second {
-    position: absolute;
-    font-size: x-large;
-    top: 1em;
-    right: 1em;
-  }
-
-  #second::before {
-    content: attr(data-label);
-    font-size: small;
-    font-weight: lighter;
-    position: absolute;
-    top: -1.1em;
-    right: 0;
-  }
-
   .matches {
     max-width: 1184px;
     margin: auto;

@@ -1,5 +1,6 @@
 import { Augencore, Earthen, Kathari, Marcolian, Paragon, Shroud } from "$lib/parallels/parallel";
-import { cardDetails, type UplinkDetailsParameters } from "./PageCardDetails.svelte";
+import type { UplinkDetailsParameters } from "$lib/playerCardData";
+import { cardDetails } from "./PageCardDetails.svelte";
 import { cardPanel, type UplinkPanelParameters } from "./PageCardPanel.svelte";
 
 // paragons

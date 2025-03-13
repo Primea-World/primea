@@ -25,29 +25,30 @@ export const load = async ({ data, fetch, depends }) => {
       },
     })
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    const { parallelAuth, pasProfile } = data;
-    if (parallelAuth) {
-      // Check if the account has changed
-      // If it has, update the user metadata
-      // This is to ensure that the user is always using the correct account
-      pasProfile?.then(async (profile) => {
+  supabase.auth.getUser().then((userData) => {
+    const user = userData.data.user;
+    if (user) {
+      const { parallelAuth, pasProfile } = data;
+      if (parallelAuth) {
+        // Check if the account has changed
+        // If it has, update the user metadata
+        // This is to ensure that the user is always using the correct account
+        pasProfile?.then(async (profile) => {
 
-        if (!user.app_metadata.parallel_account ||
-          user.app_metadata.parallel_account.account_id !== profile.account_id
-        ) {
-          const response = await fetch(`/profile/parallel/${profile.account_id}?token=${parallelAuth.access_token}&supabaseId=${user.id}`, {
-            method: "POST",
-          });
-          if (!response.ok) {
-            console.error("Failed to update user metadata");
+          if (!user.app_metadata.parallel_account ||
+            user.app_metadata.parallel_account.account_id !== profile.account_id
+          ) {
+            const response = await fetch(`/profile/parallel/${profile.account_id}?token=${parallelAuth.access_token}&supabaseId=${user.id}`, {
+              method: "POST",
+            });
+            if (!response.ok) {
+              console.error("Failed to update user metadata");
+            }
           }
-        }
-      });
+        });
+      }
     }
-  }
+  });
 
-  return { ...data, supabase, user, session };
+  return { ...data, supabase, user: supabase.auth.getUser(), session: supabase.auth.getSession() };
 }

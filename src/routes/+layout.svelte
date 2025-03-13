@@ -36,13 +36,17 @@
   }
 
   onMount(() => {
-    const {data} = supabase.auth.onAuthStateChange((_, newSession) => {
-      if (newSession?.expires_at !== session?.expires_at) {
+    const {
+      data: {subscription},
+    } = supabase.auth.onAuthStateChange(async (_, newSession) => {
+      if (
+        newSession?.expires_at !== (await session)?.data.session?.expires_at
+      ) {
         invalidate("supabase:auth");
       }
     });
 
-    return () => data.subscription.unsubscribe();
+    return () => subscription.unsubscribe();
   });
 </script>
 
@@ -53,7 +57,8 @@
 <div class="nav">
   <a href="/">
     <h2 id="title">
-      <img src="/brands/primea.svg" alt="Primea" />PRIMEA
+      <!-- <img src="/brands/primea.svg" alt="Primea" /> -->
+      PRIMEA
     </h2>
   </a>
   <nav>
@@ -67,45 +72,48 @@
         {text}
       </a>
     {/each}
-    {#if user}
-      {#each authorizedLinks as { href, text }, i}
+    {#await user then userResponse}
+      {@const user = userResponse.data.user}
+      {#if user}
+        {#each authorizedLinks as { href, text }, i}
+          <a
+            class="nav-link"
+            {href}
+            data-label={`DATA_PANEL[${i + links.length + 1}]`}
+            class:selected={href === page.url.pathname}
+          >
+            {text}
+          </a>
+        {/each}
         <a
           class="nav-link"
-          {href}
-          data-label={`DATA_PANEL[${i + links.length + 1}]`}
-          class:selected={href === page.url.pathname}
+          data-label="AUTH_PANEL[02]"
+          href="/"
+          onclick={(e) => {
+            e.preventDefault();
+            supabase.auth.signOut();
+            document.cookie = `parallel-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            goto("/");
+          }}
         >
-          {text}
+          sign out
         </a>
-      {/each}
-      <a
-        class="nav-link"
-        data-label="AUTH_PANEL[02]"
-        href="/"
-        onclick={(e) => {
-          e.preventDefault();
-          supabase.auth.signOut();
-          document.cookie = `parallel-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-          goto("/");
-        }}
-      >
-        sign out
-      </a>
-    {:else}
-      <a
-        class="nav-link"
-        data-label="AUTH_PANEL[01]"
-        href="./#"
-        onclick={(e) => {
-          e.preventDefault();
-          pushState("", {
-            showModal: true,
-          });
-        }}
-      >
-        sign in
-      </a>
-    {/if}
+      {:else}
+        <a
+          class="nav-link"
+          data-label="AUTH_PANEL[01]"
+          href="./#"
+          onclick={(e) => {
+            e.preventDefault();
+            pushState("", {
+              showModal: true,
+            });
+          }}
+        >
+          sign in
+        </a>
+      {/if}
+    {/await}
   </nav>
 </div>
 
@@ -117,12 +125,15 @@
   <div class="content">
     <PlayerCard {user} {account} {season}>
       {#snippet cardDetails()}
-        {@const details = page.data.uplinkData ?? page.data.profileData}
+        {@const details =
+          page.data.uplinkData ?? page.data.profileData ?? page.data.matchData}
         {@render page.data.cardDetails(details)}
       {/snippet}
       {#snippet cardPanel()}
-        {@const panel = page.data.uplinkPanel ?? page.data.profilePanel ?? {}}
-        {@debug panel}
+        {@const panel =
+          page.data.uplinkPanel ??
+          page.data.profilePanel ??
+          page.data.matchPanel}
         {@render page.data.cardPanel(panel)}
       {/snippet}
     </PlayerCard>

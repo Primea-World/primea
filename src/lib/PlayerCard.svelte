@@ -10,7 +10,7 @@
     Universal,
   } from "./parallels/parallel";
   import Typewriter from "./Typewriter.svelte";
-  import type {User} from "@supabase/supabase-js";
+  import type {UserResponse} from "@supabase/supabase-js";
   import type {Database} from "./database.types";
   import {userName} from "./util";
   import type {ParallelPGSAccount} from "./parallelPGSAccount";
@@ -20,7 +20,7 @@
   interface Props {
     cardDetails: Snippet<[]>;
     cardPanel: Snippet<[]>;
-    user: User | null;
+    user: Promise<UserResponse>;
     season: PromiseLike<Database["public"]["Tables"]["seasons"]["Row"] | null>;
     account: Promise<ParallelProfile> | Promise<ParallelPGSAccount> | null;
   }

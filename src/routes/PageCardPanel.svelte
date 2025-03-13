@@ -1,9 +1,7 @@
 <script module lang="ts">
   import CircularProgress from "$lib/CircularProgress.svelte";
-  import type {Database} from "$lib/database.types";
-  import type {ParallelPasProfile} from "$lib/parallelPASProfile";
   import type {Action} from "svelte/action";
-  import type {PostgrestFilterBuilder} from "@supabase/postgrest-js";
+  import type {UplinkPanelParameters} from "$lib/playerCardData";
 
   let winRate = $state(0);
   let winRateLabel: string | undefined = $state();
@@ -71,17 +69,6 @@
     if (isNaN(winRate)) {
       winRate = 0;
     }
-  }
-
-  let a: Database["public"]["Tables"]["matches"]["Row"];
-
-  interface UplinkPanelParameters {
-    totalMatches: PostgrestFilterBuilder<
-      Database["public"],
-      Database["public"]["Tables"]["matches"]["Row"],
-      Database["public"]["Tables"]["matches"]["Row"][]
-    >;
-    pasProfile: Promise<ParallelPasProfile> | null;
   }
 
   export {cardPanel, type UplinkPanelParameters};

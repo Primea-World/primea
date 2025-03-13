@@ -6,7 +6,6 @@ import { PARALLEL_PAS_URL, type ParallelPasProfile } from "$lib/parallelPASProfi
 
 
 export const load: LayoutServerLoad = async ({ locals: { supabase }, cookies, fetch }) => {
-  const { data: { user } } = await supabase.auth.getUser();
 
   const nowUTC = new Date().toUTCString();
   const season = supabase
@@ -21,6 +20,7 @@ export const load: LayoutServerLoad = async ({ locals: { supabase }, cookies, fe
       return season.data;
     });
 
+  const { data: { user } } = await supabase.auth.getUser();
   let parallelAuth: ParallelToken | null = user?.user_metadata.parallel;
   let account: Promise<ParallelProfile> | null = null;
   let pasProfile: Promise<ParallelPasProfile> | null = null;

@@ -1,11 +1,8 @@
 <script module lang="ts">
+  import type {UplinkDetailsParameters} from "$lib/playerCardData";
   import Typewriter from "$lib/Typewriter.svelte";
 
-  interface UplinkDetailsParameters {
-    rows: [string, PromiseLike<number | null | undefined>][][];
-  }
-
-  export {cardDetails, type UplinkDetailsParameters};
+  export {cardDetails};
 </script>
 
 {#snippet cardDetails(parameters: UplinkDetailsParameters)}

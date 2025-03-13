@@ -1,7 +1,12 @@
 import type { Database } from '$lib/database.types';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
-import type { UplinkDetailsParameters } from './routes/PageCardDetails.svelte';
-import type { ProfileDetailsParameters } from './routes/profile/PageCardDetails.svelte';
+import type {
+	UplinkDetailsParameters,
+	UplinkPanelParameters,
+	MatchesDetailParameters,
+	ProfileDetailsParameters,
+	ProfilePanelParameters,
+} from '$lib/playerCardData';
 
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
@@ -17,7 +22,10 @@ declare global {
 			cardPanel: Snippet;
 			uplinkData?: UplinkDetailsParameters;
 			uplinkPanel?: UplinkPanelParameters;
+			matchData?: MatchesDetailParameters;
+			matchPanel?: UplinkPanelParameters;
 			profileData?: ProfileDetailsParameters;
+			profilePanel?: ProfilePanelParameters;
 		}
 		interface PageState {
 			showModal: boolean;

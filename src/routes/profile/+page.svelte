@@ -1,7 +1,5 @@
 <script lang="ts">
   import {page} from "$app/state";
-  import PlayerCard from "$lib/PlayerCard.svelte";
-  import {type Provider} from "@supabase/supabase-js";
   import {PUBLIC_PARALLEL_URL} from "$env/static/public";
   import Typewriter from "$lib/Typewriter.svelte";
   import {onDestroy, onMount} from "svelte";
@@ -10,7 +8,7 @@
 
   let {data} = $props();
 
-  const {supabase, user, account, season} = data;
+  const {supabase, account} = data;
 
   let title = $state("");
   let timer: NodeJS.Timeout | undefined;
@@ -65,104 +63,6 @@
     }
   });
 </script>
-
-<!-- <PlayerCard {user} {account} {season}>
-  {#snippet cardDetails()}
-    <div class="summary">
-      <table>
-        <colgroup>
-          <col style="width: 50%" />
-          <col style="width: 50%" />
-        </colgroup>
-        <tbody>
-          <tr>
-            {#each ["twitch", "discord"] as provider}
-              {@const identity = user?.identities?.find(
-                (i) => i.provider == provider
-              )}
-              <td
-                class="social"
-                class:identity={!!identity}
-                data-label={provider}
-                onclick={async (e) => {
-                  e.preventDefault();
-                  console.log(`Unlinking ${provider}`);
-                  if (!!identity) {
-                    await supabase.auth.unlinkIdentity(identity);
-                  } else {
-                    await supabase.auth.linkIdentity({
-                      provider: provider as Provider,
-                    });
-                  }
-                }}
-              >
-                {#if identity}
-                  {identity.identity_data?.name ||
-                    identity.identity_data?.nickname ||
-                    identity.identity_data?.email ||
-                    "linked"}
-                {:else}
-                  link
-                {/if}
-              </td>
-            {/each}
-          </tr>
-          <tr>
-            <td data-label="rank">
-              <Typewriter
-                text={account?.then((parallelAccount) => parallelAccount.rank)}
-              />
-            </td>
-            <td data-label="bracket">
-              <Typewriter
-                text={account?.then(
-                  (parallelAccount) => parallelAccount.rank_bracket
-                )}
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  {/snippet}
-  {#snippet cardPanel()}
-    {#await account}
-      <div
-        class="panel title"
-        style="background-image: url(/unknown_origins.avif);"
-      >
-        <h2>LOADING</h2>
-      </div>
-    {:then parallelProfile}
-      {#if !!parallelProfile}
-        {#if parallelProfile?.avatar.image_url}
-          <div
-            class="panel"
-            style="background-image: url({parallelProfile?.avatar.image_url});"
-          ></div>
-        {:else if parallelProfile?.django_profile.picture_url}
-          <div
-            class="panel"
-            style="background-image: url({parallelProfile?.django_profile
-              .picture_url});"
-          ></div>
-        {/if}
-      {:else if user?.user_metadata.avatar_url}
-        <div
-          class="panel"
-          style="background-image: url({user?.user_metadata.avatar_url});"
-        ></div>
-      {:else}
-        <div
-          class="panel title"
-          style="background-image: url(/unknown_origins.avif);"
-        >
-          <h2>UNKNOWN</h2>
-        </div>
-      {/if}
-    {/await}
-  {/snippet}
-</PlayerCard> -->
 
 {#snippet permissionsSnippet(settings: ParallelPermissions[])}
   {#each settings as permission}

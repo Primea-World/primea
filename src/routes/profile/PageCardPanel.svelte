@@ -1,13 +1,7 @@
 <script module lang="ts">
-  import type {ParallelProfile} from "$lib/parallelProfile";
-  import type {User} from "@supabase/supabase-js";
+  import type {ProfilePanelParameters} from "$lib/playerCardData";
 
-  interface ProfilePanelParameters {
-    user: User | null;
-    account: Promise<ParallelProfile | null> | null;
-  }
-
-  export {cardPanel, type ProfilePanelParameters};
+  export {cardPanel};
 </script>
 
 {#snippet cardPanel(parameters: ProfilePanelParameters)}
@@ -20,31 +14,41 @@
       <h2>LOADING</h2>
     </div>
   {:then parallelProfile}
-    {#if !!parallelProfile}
-      {#if parallelProfile?.avatar.image_url}
-        <div
-          class="panel"
-          style="background-image: url({parallelProfile?.avatar.image_url});"
-        ></div>
-      {:else if parallelProfile?.django_profile.picture_url}
-        <div
-          class="panel"
-          style="background-image: url({parallelProfile?.django_profile
-            .picture_url});"
-        ></div>
-      {/if}
-    {:else if user?.user_metadata.avatar_url}
+    {#if parallelProfile?.avatar.image_url}
       <div
         class="panel"
-        style="background-image: url({user?.user_metadata.avatar_url});"
+        style="background-image: url({parallelProfile?.avatar.image_url});"
+      ></div>
+    {:else if parallelProfile?.django_profile.picture_url}
+      <div
+        class="panel"
+        style="background-image: url({parallelProfile?.django_profile
+          .picture_url});"
       ></div>
     {:else}
-      <div
-        class="panel title"
-        style="background-image: url(/unknown_origins.avif);"
-      >
-        <h2>UNKNOWN</h2>
-      </div>
+      {#await user}
+        <div
+          class="panel title"
+          style="background-image: url(/unknown_origins.avif);"
+        >
+          <h2>LOADING</h2>
+        </div>
+      {:then userData}
+        {#if userData.data.user?.user_metadata.avatar_url}
+          <div
+            class="panel"
+            style="background-image: url({userData.data.user?.user_metadata
+              .avatar_url});"
+          ></div>
+        {:else}
+          <div
+            class="panel title"
+            style="background-image: url(/unknown_origins.avif);"
+          >
+            <h2>UNKNOWN</h2>
+          </div>
+        {/if}
+      {/await}
     {/if}
   {/await}
 {/snippet}

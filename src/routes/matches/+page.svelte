@@ -159,142 +159,159 @@
       />
     </div>
   {:then account}
-    {#each matches as match (match.match_id)}
-      {@const playerOneParagon = Paragon.fromString(
-        match.player_one_deck_paragon
-      )}
-      {@const playerTwoParagon = Paragon.fromString(
-        match.player_two_deck_paragon
-      )}
-      {@const onPlayText =
-        match.player_one_id == account?.account_uuid
-          ? "on the play"
-          : "on the draw"}
-      <div class="match">
-        <div transition:fade class="match-paragon">
-          {#if account?.account_uuid == match.player_one_id}
-            <img
-              class="paragon"
-              src="/paragons/{match.player_one_deck_paragon}.webp"
-              alt={match.player_one_deck_paragon}
-            />
-            <div>
-              <div class="username">{match.player_one_name}</div>
-              <div class="paragon-name">
-                {playerOneParagon.name}
-              </div>
-              <div
-                class="paragon-description"
-                style="color: {playerOneParagon.parallel.color};"
-              >
-                {playerOneParagon.description}
-              </div>
-            </div>
-          {:else}
-            <img
-              class="paragon"
-              src="/paragons/{match.player_two_deck_paragon}.webp"
-              alt={match.player_two_deck_paragon}
-            />
-            <div>
-              <div class="username">{match.player_two_name}</div>
-              <div class="paragon-name">
-                {playerTwoParagon.name}
-              </div>
-              <div
-                class="paragon-description"
-                style="color: {playerTwoParagon.parallel.color};"
-              >
-                {playerTwoParagon.description}
-              </div>
-            </div>
-          {/if}
-        </div>
-        <div
-          class="match-summary"
-          data-time={matchTime(match)}
-          data-duration={relativeTimeDifference(
-            match.game_end_time.getTime(),
-            match.game_start_time.getTime(),
-            true,
-            false
-          )}
+    {#if !account}
+      <div class="empty-matches">
+        <a href="/profile"
+          >LINK // ACCOUNT <span class="material-symbols-rounded">
+            open_in_new
+          </span></a
         >
-          <div
-            data-label={onPlayText}
-            class:win={account?.account_uuid == match.winner_id}
-            class:loss={account?.account_uuid != match.winner_id}
-          >
-            {#if account?.account_uuid == match.winner_id}
-              win
+      </div>
+    {:else}
+      {#each matches as match (match.match_id)}
+        {@const playerOneParagon = Paragon.fromString(
+          match.player_one_deck_paragon
+        )}
+        {@const playerTwoParagon = Paragon.fromString(
+          match.player_two_deck_paragon
+        )}
+        {@const onPlayText =
+          match.player_one_id == account?.account_uuid
+            ? "on the play"
+            : "on the draw"}
+        <div class="match">
+          <div transition:fade class="match-paragon">
+            {#if account?.account_uuid == match.player_one_id}
+              <img
+                class="paragon"
+                src="/paragons/{match.player_one_deck_paragon}.webp"
+                alt={match.player_one_deck_paragon}
+              />
+              <div>
+                <div class="username">{match.player_one_name}</div>
+                <div class="paragon-name">
+                  {playerOneParagon.name}
+                </div>
+                <div
+                  class="paragon-description"
+                  style="color: {playerOneParagon.parallel.color};"
+                >
+                  {playerOneParagon.description}
+                </div>
+              </div>
             {:else}
-              loss
+              <img
+                class="paragon"
+                src="/paragons/{match.player_two_deck_paragon}.webp"
+                alt={match.player_two_deck_paragon}
+              />
+              <div>
+                <div class="username">{match.player_two_name}</div>
+                <div class="paragon-name">
+                  {playerTwoParagon.name}
+                </div>
+                <div
+                  class="paragon-description"
+                  style="color: {playerTwoParagon.parallel.color};"
+                >
+                  {playerTwoParagon.description}
+                </div>
+              </div>
+            {/if}
+          </div>
+          <div
+            class="match-summary"
+            data-time={matchTime(match)}
+            data-duration={relativeTimeDifference(
+              match.game_end_time.getTime(),
+              match.game_start_time.getTime(),
+              true,
+              false
+            )}
+          >
+            <div
+              data-label={onPlayText}
+              class:win={account?.account_uuid == match.winner_id}
+              class:loss={account?.account_uuid != match.winner_id}
+            >
+              {#if account?.account_uuid == match.winner_id}
+                win
+              {:else}
+                loss
+              {/if}
+            </div>
+          </div>
+          <div class="match-paragon opponent">
+            {#if account?.account_uuid == match.player_one_id}
+              <div>
+                <div class="username">{match.player_two_name}</div>
+                <div
+                  class="paragon-name"
+                  data-title={playerTwoParagon.description}
+                  data-color={playerTwoParagon.parallel.color.slice(1)}
+                >
+                  {playerTwoParagon.name}
+                </div>
+                <div
+                  class="paragon-description"
+                  style="color: {playerTwoParagon.parallel.color};"
+                >
+                  {playerTwoParagon.description}
+                </div>
+              </div>
+              <img
+                class="paragon"
+                src="/paragons/{match.player_two_deck_paragon}.webp"
+                alt={match.player_two_deck_paragon}
+              />
+            {:else}
+              <div>
+                <div class="username">{match.player_one_name}</div>
+                <div
+                  class="paragon-name"
+                  data-title={playerOneParagon.description}
+                  data-color={playerOneParagon.parallel.color}
+                >
+                  {playerOneParagon.name}
+                </div>
+                <div
+                  class="paragon-description"
+                  style="color: {playerOneParagon.parallel.color};"
+                >
+                  {playerOneParagon.description}
+                </div>
+              </div>
+              <img
+                class="paragon"
+                src="/paragons/{match.player_one_deck_paragon}.webp"
+                alt={match.player_one_deck_paragon}
+              />
             {/if}
           </div>
         </div>
-        <div class="match-paragon opponent">
-          {#if account?.account_uuid == match.player_one_id}
-            <div>
-              <div class="username">{match.player_two_name}</div>
-              <div
-                class="paragon-name"
-                data-title={playerTwoParagon.description}
-                data-color={playerTwoParagon.parallel.color.slice(1)}
-              >
-                {playerTwoParagon.name}
-              </div>
-              <div
-                class="paragon-description"
-                style="color: {playerTwoParagon.parallel.color};"
-              >
-                {playerTwoParagon.description}
-              </div>
-            </div>
-            <img
-              class="paragon"
-              src="/paragons/{match.player_two_deck_paragon}.webp"
-              alt={match.player_two_deck_paragon}
-            />
-          {:else}
-            <div>
-              <div class="username">{match.player_one_name}</div>
-              <div
-                class="paragon-name"
-                data-title={playerOneParagon.description}
-                data-color={playerOneParagon.parallel.color}
-              >
-                {playerOneParagon.name}
-              </div>
-              <div
-                class="paragon-description"
-                style="color: {playerOneParagon.parallel.color};"
-              >
-                {playerOneParagon.description}
-              </div>
-            </div>
-            <img
-              class="paragon"
-              src="/paragons/{match.player_one_deck_paragon}.webp"
-              alt={match.player_one_deck_paragon}
-            />
-          {/if}
-        </div>
-      </div>
-    {:else}
-      <div>No Matches</div>
-    {/each}
+      {:else}
+        <div class="empty-matches">NO MATCHES</div>
+      {/each}
+    {/if}
   {/await}
 </div>
 
 <style>
   .empty-matches {
     max-width: 1184px;
-    margin: auto;
+    margin: 1em auto;
     font-size: xx-large;
     text-align: center;
     padding: 2em 0;
     color: var(--text-color);
     background-color: #000000b6;
+    text-transform: uppercase;
+
+    > a {
+      vertical-align: middle;
+      text-decoration: none;
+      color: var(--color-primary);
+    }
   }
 
   .matches {

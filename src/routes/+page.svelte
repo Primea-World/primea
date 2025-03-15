@@ -219,6 +219,24 @@
               <p class="title">{stream.title}</p>
             </div>
           </button>
+        {:else}
+          <div transition:fade class="loading-streams">
+            <div>
+              <Typewriter
+                text={twitchStreams
+                  .then((streams) =>
+                    streams.data.length > 0 ? "loaded streams" : null
+                  )
+                  .catch((error) => {
+                    console.error(error);
+                    return "failed to load streams";
+                  })}
+                placeholder="loading streams"
+                defaultText="no live streams"
+                typingSpeed={0.075}
+              />
+            </div>
+          </div>
         {/each}
       </div>
     {/await}

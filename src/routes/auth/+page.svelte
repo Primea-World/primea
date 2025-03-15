@@ -1,13 +1,10 @@
 <script lang="ts">
-  import type {Provider, SupabaseClient} from "@supabase/supabase-js";
-  import Modal from "./Modal.svelte";
-  import {invalidate} from "$app/navigation";
+  import {enhance} from "$app/forms";
+  import type {Provider} from "@supabase/supabase-js";
 
-  interface Props {
-    supabase: SupabaseClient;
-  }
+  const {data, form} = $props();
 
-  const {supabase}: Props = $props();
+  const {supabase} = $derived(data);
 
   let passwordVisible = $state(false);
   let passwordType = $state("password");
@@ -18,7 +15,7 @@
     passwordType = passwordVisible ? "text" : "password";
   }
 
-  async function signInWithSocial(platform: Provider) {
+  async function signInWithSocial(platform: Provider): Promise<void> {
     const resp = await supabase.auth.signInWithOAuth({
       provider: platform,
       options: {
@@ -28,14 +25,13 @@
   }
 </script>
 
-<Modal>
-  {#snippet header()}
-    <div class="header">
-      <h1>Sign in</h1>
-    </div>
-  {/snippet}
+<div class="container">
+  <div class="header">
+    <h1>Sign in</h1>
+  </div>
+
   <div class="content">
-    <form method="post" action="/auth/login">
+    <form method="POST" action="/auth?/login" use:enhance>
       <!-- Email Input Field -->
       <div class="form-group">
         <label class="label" for="email">Email</label>
@@ -71,7 +67,7 @@
       </div>
       <!-- Sign Up and Sign In Buttons -->
       <div class="button-group">
-        <button class="button outlined" formaction="/auth/signup">
+        <button class="button outlined" formaction="/auth?/signup">
           <span class="material-symbols-rounded">mail</span>
           <span id="outlined">Sign Up</span>
         </button>
@@ -80,35 +76,43 @@
           <span>Sign In</span>
         </button>
       </div>
+      {#if form?.signup}
+        <div class="verify">Verify your account in your email</div>
+      {/if}
     </form>
   </div>
   <span style="display: flex;">
     <hr style="width: 90%; color: #1c1c1c88" />
   </span>
-  {#snippet footer()}
-    <div class="footer">
-      <!-- Social Login Buttons -->
-      <div class="social-buttons">
-        <button
-          class="button outlined social"
-          onclick={() => signInWithSocial("twitch")}
-        >
-          <img src="/brands/twitch.png" style="width: 24px;" alt="Twitch" />
-          <span>Sign in with Twitch</span>
-        </button>
-        <button
-          class="button outlined social"
-          onclick={() => signInWithSocial("discord")}
-        >
-          <img src="/brands/Discord.png" style="width: 24px;" alt="Discord" />
-          <span>Sign in with Discord</span>
-        </button>
-      </div>
+
+  <div class="footer">
+    <!-- Social Login Buttons -->
+    <div class="social-buttons">
+      <button
+        class="button outlined social"
+        onclick={() => signInWithSocial("twitch")}
+      >
+        <img src="/brands/twitch.png" style="width: 24px;" alt="Twitch" />
+        <span>Sign in with Twitch</span>
+      </button>
+      <button
+        class="button outlined social"
+        onclick={() => signInWithSocial("discord")}
+      >
+        <img src="/brands/Discord.png" style="width: 24px;" alt="Discord" />
+        <span>Sign in with Discord</span>
+      </button>
     </div>
-  {/snippet}
-</Modal>
+  </div>
+</div>
 
 <style>
+  .container {
+    max-width: 500px;
+    margin: 1em auto;
+    background-color: #00000096;
+  }
+
   .header {
     display: flex;
     justify-content: center;
@@ -208,6 +212,13 @@
 
   .button #outlined {
     color: var(--text-color);
+  }
+
+  .verify {
+    margin: auto;
+    text-align: center;
+    color: var(--green);
+    text-transform: uppercase;
   }
 
   /* Social Buttons */

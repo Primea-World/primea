@@ -40,7 +40,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
   if (!user && event.url.pathname !== "/" &&
     !event.url.pathname.startsWith("/twitch") &&
     !event.url.pathname.startsWith("/priming") &&
-    !event.url.pathname.startsWith("/auth/")) {
+    !event.url.pathname.startsWith("/auth")) {
     redirect(303, '/')
   }
 

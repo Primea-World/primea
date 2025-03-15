@@ -223,15 +223,8 @@
           <div transition:fade class="loading-streams">
             <div>
               <Typewriter
-                text={twitchStreams
-                  .then((streams) =>
-                    streams.data.length > 0 ? "loaded streams" : null
-                  )
-                  .catch((error) => {
-                    console.error(error);
-                    return "failed to load streams";
-                  })}
-                placeholder="loading streams"
+                text={Promise.resolve(null)}
+                placeholder=""
                 defaultText="no live streams"
                 typingSpeed={0.075}
               />

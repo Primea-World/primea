@@ -78,6 +78,8 @@
       </div>
       {#if form?.signup}
         <div class="verify">Verify your account in your email</div>
+      {:else if form?.message}
+        <div class="verify">{form.message}</div>
       {/if}
     </form>
   </div>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import {enhance} from "$app/forms";
+  import {page} from "$app/state";
   import type {Provider} from "@supabase/supabase-js";
 
   const {data, form} = $props();
@@ -19,7 +20,7 @@
     const resp = await supabase.auth.signInWithOAuth({
       provider: platform,
       options: {
-        redirectTo: `/auth/callback`,
+        redirectTo: `${page.url.origin}/auth/callback`,
       },
     });
   }

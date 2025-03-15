@@ -1,6 +1,4 @@
 import type { MatchesDetailParameters, UplinkPanelParameters } from '$lib/playerCardData'
-import { cardPanel } from '../PageCardPanel.svelte';
-import { cardDetails } from './PageCardDetails.svelte'
 
 export const load = async ({ parent }) => {
   const { supabase, account, pasProfile } = await parent();
@@ -32,8 +30,6 @@ export const load = async ({ parent }) => {
   };
 
   return {
-    cardDetails,
-    cardPanel,
     matchData,
     matchPanel,
     lastMatch,

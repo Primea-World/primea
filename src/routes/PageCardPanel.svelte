@@ -69,10 +69,10 @@
     }
   }
 
-  export {cardPanel, type UplinkPanelParameters};
+  export {uplinkCardPanel};
 </script>
 
-{#snippet cardPanel(parameters: UplinkPanelParameters)}
+{#snippet uplinkCardPanel(parameters: UplinkPanelParameters)}
   {@const {totalMatches, pasProfile} = parameters}
   <div use:setWinRate={{totalMatches, pasProfile}} class="stats">
     <CircularProgress

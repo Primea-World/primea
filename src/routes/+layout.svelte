@@ -9,6 +9,11 @@
   import {fly} from "svelte/transition";
   import Icon from "$lib/parallels/Icon.svelte";
   import {Universal} from "$lib/parallels/parallel";
+  import {uplinkCardDetails} from "./PageCardDetails.svelte";
+  import {matchCardDetails} from "./matches/PageCardDetails.svelte";
+  import {profileCardDetails} from "./profile/PageCardDetails.svelte";
+  import {uplinkCardPanel} from "./PageCardPanel.svelte";
+  import {profileCardPanel} from "./profile/PageCardPanel.svelte";
 
   const {children, data} = $props();
 
@@ -156,16 +161,48 @@
   <div class="content">
     <PlayerCard {user} {account} {season}>
       {#snippet cardDetails()}
-        {@const details =
-          page.data.uplinkData ?? page.data.profileData ?? page.data.matchData}
-        {@render page.data.cardDetails(details)}
+        {#if page.route.id === "/" && !!page.data.uplinkData}
+          {@render uplinkCardDetails(page.data.uplinkData)}
+        {:else if page.route.id === "/matches" && !!page.data.matchData}
+          {@render matchCardDetails(page.data.matchData)}
+        {:else if page.route.id === "/profile" && !!page.data.profileData}
+          {@render profileCardDetails(page.data.profileData)}
+        {:else}
+          <div class="summary">
+            <table>
+              <colgroup>
+                <col style="width: 50%" />
+                <col style="width: 50%" />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <td data-label="n/a"> unknown </td>
+                  <td data-label="n/a"> unknown </td>
+                </tr>
+                <tr>
+                  <td data-label="n/a"> unknown </td>
+                  <td data-label="n/a"> unknown </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        {/if}
       {/snippet}
       {#snippet cardPanel()}
-        {@const panel =
+        {#if page.route.id === "/" && !!page.data.uplinkPanel}
+          {@render uplinkCardPanel(page.data.uplinkPanel)}
+        {:else if page.route.id === "/matches" && !!page.data.matchPanel}
+          {@render uplinkCardPanel(page.data.matchPanel)}
+        {:else if page.route.id === "/profile" && !!page.data.profilePanel}
+          {@render profileCardPanel(page.data.profilePanel)}
+        {:else}
+          <div></div>
+        {/if}
+        <!-- {@const panel =
           page.data.uplinkPanel ??
           page.data.profilePanel ??
           page.data.matchPanel}
-        {@render page.data.cardPanel(panel)}
+        {@render page.data.cardPanel(panel)} -->
       {/snippet}
     </PlayerCard>
     {@render children()}
@@ -332,11 +369,11 @@
     display: flex;
     align-items: center;
 
-    > img {
+    /* > img {
       aspect-ratio: 1;
       width: 1.33em;
       margin-right: 0.5em;
-    }
+    } */
   }
 
   .nav {

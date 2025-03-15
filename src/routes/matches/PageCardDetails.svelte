@@ -2,10 +2,10 @@
   import type {MatchesDetailParameters} from "$lib/playerCardData";
   import Typewriter from "$lib/Typewriter.svelte";
 
-  export {cardDetails};
+  export {matchCardDetails};
 </script>
 
-{#snippet cardDetails(parameters: MatchesDetailParameters)}
+{#snippet matchCardDetails(parameters: MatchesDetailParameters)}
   {@const {totalMatches, pasProfile, account} = parameters}
   <div class="summary">
     <table>

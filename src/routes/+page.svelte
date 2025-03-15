@@ -15,23 +15,33 @@
 
   const {data} = $props();
 
-  const {paragons, parallelSummaries, twitchStreams, supabase} = data;
+  const {twitchStreams, supabase} = data;
 
   const paragonMap: SvelteMap<
     Database["public"]["Enums"]["parallel"],
     SvelteMap<String, PrimingParagonData>
-  > = $state(new SvelteMap());
+  > = $state(
+    new SvelteMap([
+      ["augencore", new SvelteMap()],
+      ["earthen", new SvelteMap()],
+      ["kathari", new SvelteMap()],
+      ["marcolian", new SvelteMap()],
+      ["shroud", new SvelteMap()],
+    ])
+  );
 
   const paragonsPromise = supabase
     .from("card_functions")
     .select("*")
     .eq("card_type", "paragon");
 
-  const primingPromise = fetch("/priming").then((res) =>
-    res.json<PrimingParagonData[]>()
-  );
+  let primingPromise: Promise<PrimingParagonData[]> | undefined = $state();
 
   onMount(async () => {
+    primingPromise = fetch("/priming").then((res) =>
+      res.json<PrimingParagonData[]>()
+    );
+
     const [priming, paragonFunctions] = await Promise.all([
       primingPromise,
       paragonsPromise,
@@ -81,11 +91,6 @@
       return acc;
     }, 0)}
     {@const loss_count = total_count - win_count}
-
-    <!-- {#each parallelSummaries as { parallel, total_count, win_count, loss_count }} -->
-    <!-- {@const paragonStats = paragons.filter(
-      (p) => p.paragon.parallel == parallel
-    )} -->
     <div class="parallel">
       <Icon {parallel} />
       <div>
@@ -159,26 +164,27 @@
 
 <div class="streams">
   <div class="content">
-    <div transition:fade={{easing: linear}} class="loading-streams">
-      <div>
-        <Typewriter
-          text={twitchStreams
-            .then((streams) =>
-              streams.data.length > 0 ? "loaded streams" : null
-            )
-            .catch((error) => {
-              console.error(error);
-              return "failed to load streams";
-            })}
-          placeholder="loading streams"
-          defaultText="no live streams"
-          typingSpeed={0.075}
-        />
+    {#await twitchStreams}
+      <div transition:fade class="loading-streams">
+        <div>
+          <Typewriter
+            text={twitchStreams
+              .then((streams) =>
+                streams.data.length > 0 ? "loaded streams" : null
+              )
+              .catch((error) => {
+                console.error(error);
+                return "failed to load streams";
+              })}
+            placeholder="loading streams"
+            defaultText="no live streams"
+            typingSpeed={0.075}
+          />
+        </div>
       </div>
-    </div>
-    {#await twitchStreams then streamResponse}
+    {:then streamResponse}
       {@const streams = streamResponse.data}
-      <div class="stream-list">
+      <div transition:fade class="stream-list">
         {#each streams as stream}
           <button
             class="stream"
@@ -191,7 +197,6 @@
                 $selectedStream = stream;
               }
             }}
-            transition:fade={{easing: linear}}
           >
             <Image
               src={stream.thumbnail_url
@@ -298,10 +303,17 @@
     background-size: cover;
     background-position-x: center;
     background-blend-mode: overlay;
-    background-color: #0d0d0d85;
+    background-color: #0d0d0db3;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    transition: all 0.25s ease-in-out;
+    color: var(--text-dim);
+  }
+
+  .parallel-stats:hover > div {
+    background-color: #0d0d0d63;
+    color: var(--text-color);
   }
 
   .parallel-stats .paragon-title {
@@ -346,9 +358,10 @@
     text-decoration: none;
     background-color: #000000d1;
     padding: 1em 0;
+    font-weight: 600;
 
     > img {
-      height: 2em;
+      height: 1.5em;
       margin: 0 0.5em 0 0.5em;
     }
   }

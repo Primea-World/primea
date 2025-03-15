@@ -18,8 +18,6 @@ declare global {
 			user: User | null;
 		}
 		interface PageData {
-			cardDetails: Snippet;
-			cardPanel: Snippet;
 			uplinkData?: UplinkDetailsParameters;
 			uplinkPanel?: UplinkPanelParameters;
 			matchData?: MatchesDetailParameters;

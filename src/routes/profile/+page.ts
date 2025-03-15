@@ -1,7 +1,5 @@
 import type { ParallelPermissions } from "$lib/parallelPermissions";
 import type { ProfileDetailsParameters, ProfilePanelParameters } from "$lib/playerCardData";
-import { cardDetails } from "./PageCardDetails.svelte";
-import { cardPanel } from "../PageCardPanel.svelte";
 
 export const load = async ({ parent, fetch }) => {
   const { supabase, user, account, parallelAuth, pasProfile } = await parent();
@@ -20,8 +18,6 @@ export const load = async ({ parent, fetch }) => {
 
   if (!parallelAuth || !pasProfile) {
     return {
-      cardDetails,
-      cardPanel,
       profileData,
       profilePanel,
       permissions: null,
@@ -36,8 +32,6 @@ export const load = async ({ parent, fetch }) => {
   });
 
   return {
-    cardDetails,
-    cardPanel,
     profileData,
     profilePanel,
     permissions,

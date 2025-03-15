@@ -1,6 +1,3 @@
-import type { Cookies } from "@sveltejs/kit";
-
-export const AUTH_COOKIE_NAME = "parallel-auth";
 export const CODE_COOKIE_NAME = "parallel-code";
 
 export interface ParallelToken {
@@ -12,11 +9,3 @@ export interface ParallelToken {
   expires_at?: number;
 }
 
-
-export const getParallelToken = (cookies: Cookies): ParallelToken | null => {
-  const authCookie = cookies.get(AUTH_COOKIE_NAME);
-  if (authCookie) {
-    return JSON.parse(authCookie) as ParallelToken;
-  }
-  return null;
-}

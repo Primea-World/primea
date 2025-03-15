@@ -13,6 +13,13 @@ export const GET = async ({ params, url, fetch }) => {
     },
   });
 
+  if (!profileResponse.ok) {
+    console.error(`Error fetching profile: ${profileResponse.statusText}`);
+    throw error(500, "Internal server error");
+  } else {
+    console.log("Successfully fetched profile", profileResponse);
+  }
+
   return json(await profileResponse.json());
 }
 

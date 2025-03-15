@@ -10,7 +10,7 @@ export const load = async ({ parent }) => {
     .select("*", { count: "exact" })
     // .lte('game_start_time', seasonData?.season_end)
     // .gte('game_end_time', seasonData?.season_start)
-    .order('game_start_time', { ascending: false });
+    .order('game_start_time', { ascending: false }).then((value) => value.data);
 
   const lastMatch = supabase
     .from("matches")

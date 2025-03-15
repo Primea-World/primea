@@ -23,17 +23,15 @@
     const {totalMatches, pasProfile} = parameters;
     const [matches, profile] = await Promise.all([totalMatches, pasProfile]);
 
-    if (!profile || !matches.data) {
+    if (!profile || !matches) {
       winRate = 0;
       return;
     }
 
-    const matchData = matches.data;
-
     switch (playerOne) {
       case undefined:
-        total = matchData.length;
-        wins = matchData.reduce((acc, match) => {
+        total = matches.length;
+        wins = matches.reduce((acc, match) => {
           if (match.winner_id == profile.account_id) {
             acc++;
           }
@@ -42,7 +40,7 @@
         winRateLabel = "WIN RATE";
         break;
       case false:
-        matchData.forEach((match) => {
+        matches.forEach((match) => {
           if (match.player_two_id == profile.account_id) {
             total++;
             if (match.winner_id == profile.account_id) {
@@ -53,7 +51,7 @@
         winRateLabel = "ON THE DRAW";
         break;
       default:
-        matchData.forEach((match) => {
+        matches.forEach((match) => {
           if (match.player_one_id == profile.account_id) {
             total++;
             if (match.winner_id == profile.account_id) {
@@ -107,7 +105,7 @@
           {#await totalMatches}
             0
           {:then matches}
-            {matches.data?.filter(
+            {matches?.filter(
               (match) => match.player_one_id == profile.account_id
             ).length ?? 0}
           {/await}
@@ -139,7 +137,7 @@
           {#await totalMatches}
             0
           {:then matches}
-            {matches.data?.filter(
+            {matches?.filter(
               (match) => match.player_two_id == profile.account_id
             ).length ?? 0}
           {/await}

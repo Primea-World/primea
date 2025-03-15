@@ -8,6 +8,8 @@
   import {MONTHS, PARAGON_NAMES, relativeTimeDifference} from "$lib/util.js";
   import {Paragon} from "$lib/parallels/parallel.js";
   import {page} from "$app/state";
+  import {fade} from "svelte/transition";
+  import Typewriter from "$lib/Typewriter.svelte";
 
   const {data} = $props();
   const {supabase, parallelAuth, account, pgsAccount, lastMatch} =
@@ -17,7 +19,7 @@
 
   $effect(() => {
     totalMatches?.then((matchResponse) => {
-      const data = matchResponse.data;
+      const data = matchResponse;
       if (data) {
         for (let index = 0; index < (data?.length ?? 0); index++) {
           const element = data[index];
@@ -81,73 +83,82 @@
           }
         }
       ),
-    ])?.then(async (account) => {
-      if (!account) {
-        return;
-      }
+    ])
+      ?.catch((error) => console.log("error fetching account id", error))
+      .then(async (account) => {
+        if (!account) {
+          return;
+        }
 
-      const resp = await fetch(
-        `/matches/${account.account_id}?token=${parallelAuth?.access_token}&lastMatch=${lastMatchResponse?.match_id}`
-      );
-      const reader = resp.body?.getReader();
-      const textDecoder = new TextDecoder();
-      let overflow = "";
-      let fetched: ParallelMatchOverview[] = [];
-      while (true) {
-        const {done, value} = await reader!.read();
-        if (done) {
-          break;
-        }
-        const text = (overflow + textDecoder.decode(value)).split("\0");
-        if (!text.at(-1)?.endsWith("}")) {
-          // if the current chunk doesn't end with a valid json object
-          // save the last part to the overflow
-          overflow = text.pop()!;
-        }
-        // for each part of the chunk (+overflow)
-        // parse the part of the chunk and add it to matches
-        text.forEach((element) => {
-          const game: ParallelMatchOverview = JSON.parse(element);
-          if (game.player_one_name === account.username) {
-            game.player_one_id = account.account_id;
-          } else if (game.player_two_name === account.username) {
-            game.player_two_id = account.account_id;
-          }
-          if (game.winner_name === account.username) {
-            game.winner_id = account.account_id;
-          }
-          fetched.push(game);
-        });
-      }
-      if (fetched.length > 0) {
-        await supabase.from("matches").upsert(
-          fetched.map((match) => ({
-            ...match,
-            player_one_deck_paragon:
-              PARAGON_NAMES.find((paragon) =>
-                match.player_one_deck_paragon.startsWith(paragon)
-              ) ?? "unknown",
-            player_two_deck_paragon:
-              PARAGON_NAMES.find((paragon) =>
-                match.player_two_deck_paragon.startsWith(paragon)
-              ) ?? "unknown",
-            game_end_time: new Date(match.game_end_time).toISOString(),
-            game_start_time: new Date(match.game_start_time).toISOString(),
-          })),
-          {
-            count: "exact",
-          }
+        const resp = await fetch(
+          `/matches/${account.account_id}?token=${parallelAuth?.access_token}&lastMatch=${lastMatchResponse?.match_id}`
         );
-        fetched.forEach((match) => {
-          matches.add(match);
-        });
-      }
-    });
+        const reader = resp.body?.getReader();
+        const textDecoder = new TextDecoder();
+        let overflow = "";
+        let fetched: ParallelMatchOverview[] = [];
+        while (true) {
+          const {done, value} = await reader!.read();
+          if (done) {
+            break;
+          }
+          const text = (overflow + textDecoder.decode(value)).split("\0");
+          if (!text.at(-1)?.endsWith("}")) {
+            // if the current chunk doesn't end with a valid json object
+            // save the last part to the overflow
+            overflow = text.pop()!;
+          }
+          // for each part of the chunk (+overflow)
+          // parse the part of the chunk and add it to matches
+          text.forEach((element) => {
+            const game: ParallelMatchOverview = JSON.parse(element);
+            if (game.player_one_name === account.username) {
+              game.player_one_id = account.account_id;
+            } else if (game.player_two_name === account.username) {
+              game.player_two_id = account.account_id;
+            }
+            if (game.winner_name === account.username) {
+              game.winner_id = account.account_id;
+            }
+            fetched.push(game);
+          });
+        }
+        if (fetched.length > 0) {
+          await supabase.from("matches").upsert(
+            fetched.map((match) => ({
+              ...match,
+              player_one_deck_paragon:
+                PARAGON_NAMES.find((paragon) =>
+                  match.player_one_deck_paragon.startsWith(paragon)
+                ) ?? "unknown",
+              player_two_deck_paragon:
+                PARAGON_NAMES.find((paragon) =>
+                  match.player_two_deck_paragon.startsWith(paragon)
+                ) ?? "unknown",
+              game_end_time: new Date(match.game_end_time).toISOString(),
+              game_start_time: new Date(match.game_start_time).toISOString(),
+            })),
+            {
+              count: "exact",
+            }
+          );
+          fetched.forEach((match) => {
+            matches.add(match);
+          });
+        }
+      });
   });
 </script>
 
 <div class="matches">
-  {#await pgsAccount then account}
+  {#await pgsAccount}
+    <div class="empty-matches">
+      <Typewriter
+        text={totalMatches?.then(() => "LOADED MATCHES")}
+        placeholder="LOADING MATCHES"
+      />
+    </div>
+  {:then account}
     {#each matches as match (match.match_id)}
       {@const playerOneParagon = Paragon.fromString(
         match.player_one_deck_paragon
@@ -160,7 +171,7 @@
           ? "on the play"
           : "on the draw"}
       <div class="match">
-        <div class="match-paragon">
+        <div transition:fade class="match-paragon">
           {#if account?.account_uuid == match.player_one_id}
             <img
               class="paragon"
@@ -276,6 +287,16 @@
 </div>
 
 <style>
+  .empty-matches {
+    max-width: 1184px;
+    margin: auto;
+    font-size: xx-large;
+    text-align: center;
+    padding: 2em 0;
+    color: var(--text-color);
+    background-color: #000000b6;
+  }
+
   .matches {
     max-width: 1184px;
     margin: auto;

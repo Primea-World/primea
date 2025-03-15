@@ -78,7 +78,6 @@ export const GET = async ({ fetch, params, url }) => {
   const continuationToken = url.searchParams.get("continuationToken");
   const lastMatch = url.searchParams.get("lastMatch");
   const p: Record<string, string> = {};
-  console.log("fetching matches for account", params.id, lastMatch);
 
   if (fromDate) {
     p.from_date = fromDate;

@@ -1,12 +1,13 @@
 <script lang="ts">
   import type {Provider, SupabaseClient} from "@supabase/supabase-js";
   import Modal from "./Modal.svelte";
+  import {invalidate} from "$app/navigation";
 
   interface Props {
     supabase: SupabaseClient;
   }
 
-  const {supabase} = $props();
+  const {supabase}: Props = $props();
 
   let passwordVisible = $state(false);
   let passwordType = $state("password");
@@ -17,12 +18,12 @@
     passwordType = passwordVisible ? "text" : "password";
   }
 
-  function signInWithSocial(platform: Provider) {
-    supabase.auth.signInWithOAuth({
+  async function signInWithSocial(platform: Provider) {
+    const resp = await supabase.auth.signInWithOAuth({
       provider: platform,
-      // options: {
-      //   redirectTo: window.location.pathname,
-      // },
+      options: {
+        redirectTo: `/auth/callback`,
+      },
     });
   }
 </script>
@@ -92,7 +93,6 @@
           class="button outlined social"
           onclick={() => signInWithSocial("twitch")}
         >
-          <!-- <span class="icon" data-img="/brands/twitch.png"></span> -->
           <img src="/brands/twitch.png" style="width: 24px;" alt="Twitch" />
           <span>Sign in with Twitch</span>
         </button>
@@ -100,7 +100,6 @@
           class="button outlined social"
           onclick={() => signInWithSocial("discord")}
         >
-          <!-- <span class="icon" data-img="/brands/Discord.png"></span> -->
           <img src="/brands/Discord.png" style="width: 24px;" alt="Discord" />
           <span>Sign in with Discord</span>
         </button>

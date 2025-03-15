@@ -117,6 +117,7 @@
     aspect-ratio: 1;
     display: flex;
     justify-content: center;
+    position: relative;
 
     > svg {
       height: 100%;

@@ -1,12 +1,13 @@
 import { PARALLEL_CLIENT_ID, PARALLEL_REDIRECT } from "$env/static/private";
 import { PUBLIC_PARALLEL_URL } from "$env/static/public";
-import { AUTH_COOKIE_NAME, CODE_COOKIE_NAME, type ParallelToken } from "$lib/parallelToken.js";
+import { CODE_COOKIE_NAME, type ParallelToken } from "$lib/parallelToken.js";
 import { error, json, redirect } from "@sveltejs/kit";
 
-export const GET = async ({ url, cookies, fetch }) => {
+export const GET = async ({ url, cookies, fetch, locals }) => {
   const code = url.searchParams.get("code");
   const redirectUri = url.searchParams.get("redirect");
   const challenge = cookies.get(CODE_COOKIE_NAME);
+  console.log("authorization response", { code, redirectUri, challenge });
   if (!code || !redirectUri || !challenge) {
     throw error(500, "invalid authorization response");
   }
@@ -34,14 +35,21 @@ export const GET = async ({ url, cookies, fetch }) => {
   // Set the expiration time to 5 minutes before the token expires
   data.expires_at = Date.now() + (data.expires_in - 300) * 1000;
 
-  cookies.set(AUTH_COOKIE_NAME, JSON.stringify(data), {
-    path: "/", // Cookie available site-wide
-    httpOnly: false, // Allow client-side JS access
-    secure: true, // Secure in production
-    sameSite: "strict", // Prevent CSRF
-    maxAge: 60 * 60 * 24 * 30, // Expires in 30 days, if the token is invalid then attempt to refresh the token
-    // maxAge: data.expires_in, // Expires at token expiration
-  });
+  // cookies.set(AUTH_COOKIE_NAME, JSON.stringify(data), {
+  //   path: "/", // Cookie available site-wide
+  //   httpOnly: false, // Allow client-side JS access
+  //   secure: true, // Secure in production
+  //   sameSite: "strict", // Prevent CSRF
+  //   maxAge: 60 * 60 * 24 * 30, // Expires in 30 days, if the token is invalid then attempt to refresh the token
+  //   // maxAge: data.expires_in, // Expires at token expiration
+  // });
+
+  await locals.supabase.auth.updateUser({
+    data: {
+      parallel: data,
+      parallel_auth: null,
+    },
+  })
 
   throw redirect(303, `${redirectUri}`);
 };

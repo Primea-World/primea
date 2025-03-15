@@ -1,4 +1,4 @@
-import { type UserResponse } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 import { Aetio, Arak, ArmouredDivisionHQ, Brand, CatherineLapointe, Gaffar, GnaeusValerusAlpha, Jahn, JuggernautWorkshop, Lemieux, Nehemiah, NewDawn, Niamh, ScipiusMagnusAlpha, Shoshanna } from "./parallels/parallel";
 
 export const second = 1000;
@@ -83,18 +83,17 @@ export function relativeTimeDifference(
 
 
 export async function userName(
-  user?: Promise<UserResponse>,
+  user?: User | null,
   username?: Promise<string | null> | null,
 ): Promise<string> {
-  const userResponse = (await user)?.data.user;
 
   return (
-    userResponse?.app_metadata.parallel_account.username ??
+    user?.app_metadata.parallel_account.username ??
     await username ??
-    userResponse?.identities?.at(0)?.identity_data?.["full_name"] ??
-    userResponse?.identities?.at(0)?.identity_data?.["name"] ??
-    userResponse?.identities?.at(0)?.identity_data?.["nickname"] ??
-    userResponse?.email ??
+    user?.identities?.at(0)?.identity_data?.["full_name"] ??
+    user?.identities?.at(0)?.identity_data?.["name"] ??
+    user?.identities?.at(0)?.identity_data?.["nickname"] ??
+    user?.email ??
     "unknown"
   );
 }

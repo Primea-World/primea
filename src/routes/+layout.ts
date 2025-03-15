@@ -3,10 +3,10 @@ import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from "$env/static/publi
 import type { Database } from "$lib/database.types.js";
 import { createBrowserClient, createServerClient } from "@supabase/ssr";
 
-export const ssr = false;
-
 export const load = async ({ data, fetch, depends }) => {
   depends('supabase:auth')
+
+  // console.log("Loading layout...");
 
   const supabase = browser
     ? createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
@@ -23,7 +23,9 @@ export const load = async ({ data, fetch, depends }) => {
           return data.cookies
         },
       },
-    })
+    });
+
+  const { data: { user } } = await supabase.auth.getUser();
 
   supabase.auth.getUser().then((userData) => {
     const user = userData.data.user;
@@ -50,5 +52,5 @@ export const load = async ({ data, fetch, depends }) => {
     }
   });
 
-  return { ...data, supabase, user: supabase.auth.getUser(), session: supabase.auth.getSession() };
+  return { ...data, supabase, user, session: await supabase.auth.getSession() };
 }

@@ -1,7 +1,6 @@
-import type { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import type { ParallelPasProfile } from "./parallelPASProfile";
 import type { Database } from "./database.types";
-import type { AuthError, OAuthResponse, SignInWithOAuthCredentials, UserIdentity, UserResponse } from "@supabase/supabase-js";
+import type { AuthError, OAuthResponse, SignInWithOAuthCredentials, User, UserIdentity } from "@supabase/supabase-js";
 import type { ParallelProfile } from "./parallelProfile";
 
 interface UplinkDetailsParameters {
@@ -9,21 +8,13 @@ interface UplinkDetailsParameters {
 }
 
 interface UplinkPanelParameters {
-  totalMatches: PostgrestFilterBuilder<
-    Database["public"],
-    Database["public"]["Tables"]["matches"]["Row"],
-    Database["public"]["Tables"]["matches"]["Row"][]
-  >;
+  totalMatches: PromiseLike<Database["public"]["Tables"]["matches"]["Row"][] | null>;
   pasProfile: Promise<ParallelPasProfile> | null;
 
 }
 
 interface MatchesDetailParameters {
-  totalMatches: PostgrestFilterBuilder<
-    Database["public"],
-    Database["public"]["Tables"]["matches"]["Row"],
-    Database["public"]["Tables"]["matches"]["Row"][]
-  >;
+  totalMatches: PromiseLike<Database["public"]["Tables"]["matches"]["Row"][] | null>;
   pasProfile: Promise<ParallelPasProfile> | null;
   account: Promise<ParallelProfile> | null;
 }
@@ -43,13 +34,13 @@ interface ProfileDetailsParameters {
   linkIdentity: (
     credentials: SignInWithOAuthCredentials
   ) => Promise<OAuthResponse>;
-  user: Promise<UserResponse>;
+  user: User | null;
   account: Promise<ParallelProfile> | null;
 }
 
 
 interface ProfilePanelParameters {
-  user: Promise<UserResponse>;
+  user: User | null;
   account: Promise<ParallelProfile | null> | null;
 }
 

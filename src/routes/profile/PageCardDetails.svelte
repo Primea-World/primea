@@ -49,20 +49,17 @@
       </colgroup>
       <tbody>
         <tr>
-          {#await user then userData}
-            {@const user = userData.data.user}
-            {#each supportedProviders as provider}
-              {@const identity = user?.identities?.find(
-                (i) => i.provider == provider
-              )}
-              {@render identityRow(
-                provider,
-                linkIdentity,
-                unlinkIdentity,
-                identity
-              )}
-            {/each}
-          {/await}
+          {#each supportedProviders as provider}
+            {@const identity = user?.identities?.find(
+              (i) => i.provider == provider
+            )}
+            {@render identityRow(
+              provider,
+              linkIdentity,
+              unlinkIdentity,
+              identity
+            )}
+          {/each}
         </tr>
         <tr>
           <td data-label="rank">

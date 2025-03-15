@@ -5,6 +5,7 @@
   import {onDestroy, onMount} from "svelte";
   import type {ParallelPermissions} from "$lib/parallelPermissions.js";
   import {relativeTimeDifference, second} from "$lib/util.js";
+  import {invalidate} from "$app/navigation";
 
   let {data} = $props();
 
@@ -149,20 +150,20 @@
             disabled={!account}
             onclick={async (e) => {
               e.preventDefault();
-              const confirmation = await confirm(
+              const confirmation = confirm(
                 "Are you sure you want to unlink your parallel account?"
               );
               if (!confirmation) {
                 return;
               }
               console.log("Unlinking parallel account");
-              document.cookie = `parallel-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
               await supabase.auth.updateUser({
                 data: {
                   parallel: null,
                 },
               });
-              window.location.reload();
+              invalidate("supabase:auth");
+              // window.location.reload();
             }}
           >
             UNLINK ACCOUNT
@@ -355,8 +356,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #c9c9c9ed;
+    background-color: #c9c9c92b;
     z-index: 1;
+    backdrop-filter: blur(7px);
   }
 
   .link-overlay > a:hover {

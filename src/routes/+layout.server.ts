@@ -21,6 +21,7 @@ export const load: LayoutServerLoad = async ({ locals: { supabase }, cookies, fe
     });
 
   const { data: { user } } = await supabase.auth.getUser();
+  // console.log("server user", user);
   let parallelAuth: ParallelToken | null = user?.user_metadata.parallel;
   let account: Promise<ParallelProfile> | null = null;
   let pasProfile: Promise<ParallelPasProfile> | null = null;

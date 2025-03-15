@@ -5,6 +5,10 @@
   import {goto, invalidate, pushState} from "$app/navigation";
   import {onMount} from "svelte";
   import PlayerCard from "$lib/PlayerCard.svelte";
+  import {selectedStream} from "$lib/streamStore.js";
+  import {fly} from "svelte/transition";
+  import Icon from "$lib/parallels/Icon.svelte";
+  import {Universal} from "$lib/parallels/parallel";
 
   const {children, data} = $props();
 
@@ -38,10 +42,8 @@
   onMount(() => {
     const {
       data: {subscription},
-    } = supabase.auth.onAuthStateChange(async (_, newSession) => {
-      if (
-        newSession?.expires_at !== (await session)?.data.session?.expires_at
-      ) {
+    } = supabase.auth.onAuthStateChange((_, newSession) => {
+      if (newSession?.expires_at !== session?.data.session?.expires_at) {
         invalidate("supabase:auth");
       }
     });
@@ -52,7 +54,38 @@
 
 <svelte:window onmousemove={handleMouseMove} />
 
-<link rel="preconnect" href={PUBLIC_SUPABASE_URL} />
+<svelte:head>
+  <link rel="preconnect" href={PUBLIC_SUPABASE_URL} />
+</svelte:head>
+
+{#if $selectedStream}
+  <div transition:fly={{x: 500}} class="stream-overlay">
+    <div class="stream">
+      <div class="placeholder">
+        <Icon parallel={Universal} />
+      </div>
+      <iframe
+        src="https://player.twitch.tv/?channel={$selectedStream.user_name}&parent={window
+          .location.hostname}"
+        allowfullscreen
+        allow="fullscreen; picture-in-picture"
+        frameborder="0"
+        scrolling="no"
+        height="225"
+        width="400"
+        title="Twitch stream: {$selectedStream.user_name}"
+      ></iframe>
+    </div>
+    <button
+      class="close-stream"
+      onclick={() => {
+        $selectedStream = null;
+      }}
+    >
+      close stream
+    </button>
+  </div>
+{/if}
 
 <div class="nav">
   <a href="/">
@@ -72,48 +105,46 @@
         {text}
       </a>
     {/each}
-    {#await user then userResponse}
-      {@const user = userResponse.data.user}
-      {#if user}
-        {#each authorizedLinks as { href, text }, i}
-          <a
-            class="nav-link"
-            {href}
-            data-label={`DATA_PANEL[${i + links.length + 1}]`}
-            class:selected={href === page.url.pathname}
-          >
-            {text}
-          </a>
-        {/each}
+    {#if user}
+      {#each authorizedLinks as { href, text }, i}
         <a
           class="nav-link"
-          data-label="AUTH_PANEL[02]"
-          href="/"
-          onclick={(e) => {
-            e.preventDefault();
-            supabase.auth.signOut();
-            document.cookie = `parallel-auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-            goto("/");
-          }}
+          {href}
+          data-label={`DATA_PANEL[${i + links.length + 1}]`}
+          class:selected={href === page.url.pathname}
         >
-          sign out
+          {text}
         </a>
-      {:else}
-        <a
-          class="nav-link"
-          data-label="AUTH_PANEL[01]"
-          href="./#"
-          onclick={(e) => {
-            e.preventDefault();
-            pushState("", {
-              showModal: true,
-            });
-          }}
-        >
-          sign in
-        </a>
-      {/if}
-    {/await}
+      {/each}
+      <a
+        class="nav-link"
+        data-label="AUTH_PANEL[02]"
+        href="/"
+        onclick={async (e) => {
+          e.preventDefault();
+          await supabase.auth.signOut();
+          const response = await fetch("/auth/logout");
+          await invalidate("supabase:auth");
+          goto(response.headers.get("Location") ?? "/");
+        }}
+      >
+        sign out
+      </a>
+    {:else}
+      <a
+        class="nav-link"
+        data-label="AUTH_PANEL[01]"
+        href="./#"
+        onclick={(e) => {
+          e.preventDefault();
+          pushState("", {
+            showModal: true,
+          });
+        }}
+      >
+        sign in
+      </a>
+    {/if}
   </nav>
 </div>
 
@@ -247,6 +278,41 @@
         #ffffffff 20%,
         transparent 60%
       );
+  }
+
+  .stream-overlay {
+    position: fixed;
+    right: 1em;
+    bottom: 2em;
+    z-index: 10;
+
+    .stream {
+      position: relative;
+
+      iframe {
+        position: relative;
+      }
+
+      .placeholder {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000;
+      }
+    }
+
+    .close-stream {
+      width: 100%;
+      background-color: #000;
+      color: var(--color-primary);
+      border: var(--color-primary) 2px solid;
+      text-transform: uppercase;
+      font-family: inherit;
+      font-size: large;
+    }
   }
 
   .content {

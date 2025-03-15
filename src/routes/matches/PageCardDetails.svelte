@@ -28,12 +28,12 @@
             <td data-label="win streak">
               <Typewriter
                 text={totalMatches.then((matches) => {
-                  if (!matches.data) {
+                  if (!matches) {
                     return 0;
                   }
                   let winStreak = 0;
-                  for (let i = 0; i < matches.data.length; i++) {
-                    if (matches.data[i].winner_id == profile?.account_id) {
+                  for (let i = 0; i < matches.length; i++) {
+                    if (matches[i].winner_id == profile?.account_id) {
                       winStreak++;
                     } else {
                       break;
@@ -56,7 +56,7 @@
               <Typewriter
                 text={totalMatches.then(
                   (matches) =>
-                    matches.data?.filter(
+                    matches?.filter(
                       (match) => match.winner_id == profile?.account_id
                     ).length
                 )}
@@ -67,7 +67,7 @@
               <Typewriter
                 text={totalMatches.then(
                   (matches) =>
-                    matches.data?.filter(
+                    matches?.filter(
                       (match) => match.winner_id != profile?.account_id
                     ).length
                 )}

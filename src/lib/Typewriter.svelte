@@ -14,6 +14,8 @@
     typingSpeed?: number; // in seconds
   }
 
+  // invalidate something
+
   const {
     text,
     placeholder = "loading",
@@ -51,7 +53,9 @@
   onMount(async () => {
     const textResolved = await Promise.race([
       text,
-      new Promise((resolve) => setTimeout(resolve, typingSpeed * 1000)),
+      new Promise((resolve) =>
+        setTimeout(() => resolve(null), typingSpeed * 1000)
+      ),
     ]);
     if (!textResolved) {
       await type(placeholder);

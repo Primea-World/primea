@@ -37,7 +37,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
   event.locals.user = user
 
   // if they aren't logged in, redirect to the homepage
-  if (!user && event.url.pathname !== "/") {
+  if (!user && event.url.pathname !== "/" && !event.url.pathname.startsWith("/twitch/")) {
     redirect(303, '/')
   }
 

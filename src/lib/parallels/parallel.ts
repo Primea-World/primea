@@ -1,6 +1,24 @@
 abstract class Parallel {
   static title: string;
   static color: string;
+
+  static fromString(str: string): typeof Parallel {
+    switch (str.toLocaleLowerCase()) {
+      case "augencore":
+        return Augencore;
+      case "earthen":
+        return Earthen;
+      case "kathari":
+        return Kathari;
+      case "marcolian":
+        return Marcolian;
+      case "shroud":
+        return Shroud;
+      case "universal":
+      default:
+        return Universal;
+    }
+  }
 }
 
 
@@ -76,40 +94,40 @@ abstract class Paragon {
     }
   }
 
-  static fromCardID(cardID: number): Paragon {
+  static fromCardID(cardID: number): typeof Paragon {
     switch (cardID) {
       case 9:
-        return new Jahn();
+        return Jahn;
       case 21:
-        return new Arak();
+        return Arak;
       case 62:
-        return new Gaffar();
+        return Gaffar;
       case 171:
-        return new Lemieux();
+        return Lemieux;
       case 197:
-        return new CatherineLapointe();
+        return CatherineLapointe;
       case 277:
-        return new ArmouredDivisionHQ();
+        return ArmouredDivisionHQ;
       case 371:
-        return new GnaeusValerusAlpha();
+        return GnaeusValerusAlpha;
       case 373:
-        return new ScipiusMagnusAlpha();
+        return ScipiusMagnusAlpha;
       case 375:
-        return new Aetio();
+        return Aetio;
       case 376:
-        return new JuggernautWorkshop();
+        return JuggernautWorkshop;
       case 378:
-        return new Brand();
+        return Brand;
       case 379:
-        return new Niamh();
+        return Niamh;
       case 380:
-        return new NewDawn();
+        return NewDawn;
       case 389:
-        return new Shoshanna();
+        return Shoshanna;
       case 390:
-        return new Nehemiah();
+        return Nehemiah;
       default:
-        return new Unknown();
+        return Unknown;
     }
   }
 }

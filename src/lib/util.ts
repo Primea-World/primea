@@ -88,7 +88,7 @@ export async function userName(
 ): Promise<string> {
 
   return (
-    user?.app_metadata.parallel_account.username ??
+    user?.app_metadata.parallel_account?.username ??
     await username ??
     user?.identities?.at(0)?.identity_data?.["full_name"] ??
     user?.identities?.at(0)?.identity_data?.["name"] ??

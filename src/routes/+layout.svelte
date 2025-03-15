@@ -1,8 +1,7 @@
 <script lang="ts">
   import {page} from "$app/state";
-  import SignIn from "$lib/SignIn.svelte";
   import {PUBLIC_SUPABASE_URL} from "$env/static/public";
-  import {goto, invalidate, pushState} from "$app/navigation";
+  import {goto, invalidate} from "$app/navigation";
   import {onMount} from "svelte";
   import PlayerCard from "$lib/PlayerCard.svelte";
   import {selectedStream} from "$lib/streamStore.js";
@@ -136,19 +135,7 @@
         sign out
       </a>
     {:else}
-      <a
-        class="nav-link"
-        data-label="AUTH_PANEL[01]"
-        href="./#"
-        onclick={(e) => {
-          e.preventDefault();
-          pushState("", {
-            showModal: true,
-          });
-        }}
-      >
-        sign in
-      </a>
+      <a class="nav-link" data-label="AUTH_PANEL[01]" href="auth/"> sign in </a>
     {/if}
   </nav>
 </div>
@@ -159,52 +146,49 @@
     style="--mouse-x: {mouseMove.x}px; --mouse-y: {mouseMove.y}px;"
   ></div>
   <div class="content">
-    <PlayerCard {user} {account} {season}>
-      {#snippet cardDetails()}
-        {#if page.route.id === "/" && !!page.data.uplinkData}
-          {@render uplinkCardDetails(page.data.uplinkData)}
-        {:else if page.route.id === "/matches" && !!page.data.matchData}
-          {@render matchCardDetails(page.data.matchData)}
-        {:else if page.route.id === "/profile" && !!page.data.profileData}
-          {@render profileCardDetails(page.data.profileData)}
-        {:else}
-          <div class="summary">
-            <table>
-              <colgroup>
-                <col style="width: 50%" />
-                <col style="width: 50%" />
-              </colgroup>
-              <tbody>
-                <tr>
-                  <td data-label="n/a"> unknown </td>
-                  <td data-label="n/a"> unknown </td>
-                </tr>
-                <tr>
-                  <td data-label="n/a"> unknown </td>
-                  <td data-label="n/a"> unknown </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        {/if}
-      {/snippet}
-      {#snippet cardPanel()}
-        {#if page.route.id === "/" && !!page.data.uplinkPanel}
-          {@render uplinkCardPanel(page.data.uplinkPanel)}
-        {:else if page.route.id === "/matches" && !!page.data.matchPanel}
-          {@render uplinkCardPanel(page.data.matchPanel)}
-        {:else if page.route.id === "/profile" && !!page.data.profilePanel}
-          {@render profileCardPanel(page.data.profilePanel)}
-        {:else}
-          <div></div>
-        {/if}
-        <!-- {@const panel =
-          page.data.uplinkPanel ??
-          page.data.profilePanel ??
-          page.data.matchPanel}
-        {@render page.data.cardPanel(panel)} -->
-      {/snippet}
-    </PlayerCard>
+    {#if page.url.pathname !== "/auth"}
+      <PlayerCard {user} {account} {season}>
+        {#snippet cardDetails()}
+          {#if page.route.id === "/" && !!page.data.uplinkData}
+            {@render uplinkCardDetails(page.data.uplinkData)}
+          {:else if page.route.id === "/matches" && !!page.data.matchData}
+            {@render matchCardDetails(page.data.matchData)}
+          {:else if page.route.id === "/profile" && !!page.data.profileData}
+            {@render profileCardDetails(page.data.profileData)}
+          {:else}
+            <div class="summary">
+              <table>
+                <colgroup>
+                  <col style="width: 50%" />
+                  <col style="width: 50%" />
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <td data-label="n/a"> unknown </td>
+                    <td data-label="n/a"> unknown </td>
+                  </tr>
+                  <tr>
+                    <td data-label="n/a"> unknown </td>
+                    <td data-label="n/a"> unknown </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          {/if}
+        {/snippet}
+        {#snippet cardPanel()}
+          {#if page.route.id === "/" && !!page.data.uplinkPanel}
+            {@render uplinkCardPanel(page.data.uplinkPanel)}
+          {:else if page.route.id === "/matches" && !!page.data.matchPanel}
+            {@render uplinkCardPanel(page.data.matchPanel)}
+          {:else if page.route.id === "/profile" && !!page.data.profilePanel}
+            {@render profileCardPanel(page.data.profilePanel)}
+          {:else}
+            <div></div>
+          {/if}
+        {/snippet}
+      </PlayerCard>
+    {/if}
     {@render children()}
   </div>
 </div>
@@ -222,8 +206,6 @@
   </div>
   <p>primea world © 2025</p>
 </div>
-
-<SignIn {supabase} />
 
 <style>
   :global(html) {
@@ -292,7 +274,7 @@
       var(--color-primary) 2px,
       transparent 3px
     );
-    background-size: 1.2em 1.2em;
+    background-size: 2em 2em;
     mask-image: radial-gradient(
         circle 45svw at 32% 87%,
         #ffffff88 20%,

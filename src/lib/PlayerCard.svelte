@@ -21,7 +21,11 @@
     cardPanel: Snippet<[]>;
     user: User | null;
     season: PromiseLike<Database["public"]["Tables"]["seasons"]["Row"] | null>;
-    account: Promise<ParallelProfile> | Promise<ParallelPGSAccount> | null;
+    account:
+      | Promise<ParallelProfile>
+      | Promise<ParallelPGSAccount>
+      | undefined
+      | null;
   }
 
   const {cardDetails, cardPanel, season, user, account}: Props = $props();

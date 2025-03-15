@@ -3,7 +3,7 @@
   import Typewriter from "$lib/Typewriter.svelte";
   import type {Provider, UserIdentity} from "@supabase/supabase-js";
 
-  export {cardDetails};
+  export {profileCardDetails};
 
   const supportedProviders: Provider[] = ["twitch", "discord"];
 </script>
@@ -39,7 +39,7 @@
   </td>
 {/snippet}
 
-{#snippet cardDetails(parameters: ProfileDetailsParameters)}
+{#snippet profileCardDetails(parameters: ProfileDetailsParameters)}
   {@const {unlinkIdentity, linkIdentity, user, account} = parameters}
   <div class="summary">
     <table>

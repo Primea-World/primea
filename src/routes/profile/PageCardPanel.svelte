@@ -1,10 +1,10 @@
 <script module lang="ts">
   import type {ProfilePanelParameters} from "$lib/playerCardData";
 
-  export {cardPanel};
+  export {profileCardPanel};
 </script>
 
-{#snippet cardPanel(parameters: ProfilePanelParameters)}
+{#snippet profileCardPanel(parameters: ProfilePanelParameters)}
   {@const {user, account} = parameters}
   {#await account}
     <div
@@ -25,30 +25,18 @@
         style="background-image: url({parallelProfile?.django_profile
           .picture_url});"
       ></div>
+    {:else if user?.user_metadata.avatar_url}
+      <div
+        class="panel"
+        style="background-image: url({user?.user_metadata.avatar_url});"
+      ></div>
     {:else}
-      {#await user}
-        <div
-          class="panel title"
-          style="background-image: url(/unknown_origins.avif);"
-        >
-          <h2>LOADING</h2>
-        </div>
-      {:then userData}
-        {#if userData.data.user?.user_metadata.avatar_url}
-          <div
-            class="panel"
-            style="background-image: url({userData.data.user?.user_metadata
-              .avatar_url});"
-          ></div>
-        {:else}
-          <div
-            class="panel title"
-            style="background-image: url(/unknown_origins.avif);"
-          >
-            <h2>UNKNOWN</h2>
-          </div>
-        {/if}
-      {/await}
+      <div
+        class="panel title"
+        style="background-image: url(/unknown_origins.avif);"
+      >
+        <h2>UNKNOWN</h2>
+      </div>
     {/if}
   {/await}
 {/snippet}

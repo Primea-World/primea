@@ -2,10 +2,10 @@
   import type {UplinkDetailsParameters} from "$lib/playerCardData";
   import Typewriter from "$lib/Typewriter.svelte";
 
-  export {cardDetails};
+  export {uplinkCardDetails};
 </script>
 
-{#snippet cardDetails(parameters: UplinkDetailsParameters)}
+{#snippet uplinkCardDetails(parameters: UplinkDetailsParameters)}
   {@const {rows} = parameters}
   <div class="summary">
     <table>

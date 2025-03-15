@@ -1,7 +1,9 @@
 import type { UplinkDetailsParameters, UplinkPanelParameters } from "$lib/playerCardData";
 import type { StreamResponse } from "./twitch/streams/+server";
 
-export const load = async ({ parent, fetch }) => {
+export const load = async ({ parent, fetch, depends }) => {
+  depends('supabase:auth');
+
   const { supabase, pasProfile, season } = await parent();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

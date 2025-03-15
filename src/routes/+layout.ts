@@ -6,8 +6,6 @@ import { createBrowserClient, createServerClient } from "@supabase/ssr";
 export const load = async ({ data, fetch, depends }) => {
   depends('supabase:auth')
 
-  // console.log("Loading layout...");
-
   const supabase = browser
     ? createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
       global: {
@@ -27,30 +25,27 @@ export const load = async ({ data, fetch, depends }) => {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  supabase.auth.getUser().then((userData) => {
-    const user = userData.data.user;
-    if (user) {
-      const { parallelAuth, pasProfile } = data;
-      if (parallelAuth) {
-        // Check if the account has changed
-        // If it has, update the user metadata
-        // This is to ensure that the user is always using the correct account
-        pasProfile?.then(async (profile) => {
+  if (user) {
+    const { parallelAuth, pasProfile } = data;
+    if (parallelAuth) {
+      // Check if the account has changed
+      // If it has, update the user metadata
+      // This is to ensure that the user is always using the correct account
+      pasProfile?.then(async (profile) => {
 
-          if (!user.app_metadata.parallel_account ||
-            user.app_metadata.parallel_account.account_id !== profile.account_id
-          ) {
-            const response = await fetch(`/profile/parallel/${profile.account_id}?token=${parallelAuth.access_token}&supabaseId=${user.id}`, {
-              method: "POST",
-            });
-            if (!response.ok) {
-              console.error("Failed to update user metadata");
-            }
+        if (!user.app_metadata.parallel_account ||
+          user.app_metadata.parallel_account.account_id !== profile.account_id
+        ) {
+          const response = await fetch(`/profile/parallel/${profile.account_id}?token=${parallelAuth.access_token}&supabaseId=${user.id}`, {
+            method: "POST",
+          });
+          if (!response.ok) {
+            console.error("Failed to update user metadata");
           }
-        });
-      }
+        }
+      });
     }
-  });
+  }
 
   return { ...data, supabase, user, session: await supabase.auth.getSession() };
 }

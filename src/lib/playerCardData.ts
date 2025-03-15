@@ -9,7 +9,7 @@ interface UplinkDetailsParameters {
 
 interface UplinkPanelParameters {
   totalMatches: PromiseLike<Database["public"]["Tables"]["matches"]["Row"][] | null>;
-  pasProfile: Promise<ParallelPasProfile> | null;
+  pasProfile: Promise<ParallelPasProfile> | undefined | null;
 
 }
 

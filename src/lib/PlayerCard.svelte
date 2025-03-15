@@ -26,16 +26,17 @@
 
   const {cardDetails, cardPanel, season, user, account}: Props = $props();
 
-  let username = account?.then((account) => {
-    // console.log("account", account);
-    if (!account) {
-      return null;
-    } else if ("django_profile" in account) {
-      return account.django_profile.username;
-    } else {
-      return account.username;
-    }
-  });
+  let username = $derived(
+    account?.then((account) => {
+      if (!account) {
+        return null;
+      } else if ("django_profile" in account) {
+        return account.django_profile.username;
+      } else {
+        return account.username;
+      }
+    })
+  );
 
   const seasonParallel = season?.then((season) => {
     switch (season?.parallel) {

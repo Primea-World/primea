@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {onMount} from "svelte";
+  import {Mutex} from "./mutex";
 
   interface Props {
     text:
@@ -14,8 +14,6 @@
     typingSpeed?: number; // in seconds
   }
 
-  // invalidate something
-
   const {
     text,
     placeholder = "loading",
@@ -26,10 +24,33 @@
     typingSpeed = 0.1,
   }: Props = $props();
 
+  const mutex = new Mutex();
+
   let currentText = $state("_");
   let cursor = $state(includeCursor);
 
+  $effect(() => {
+    Promise.race([text, Promise.resolve(false)]).then(async (value) => {
+      cursor = true;
+      if (value === false) {
+        type(placeholder);
+      }
+      value = await text;
+      if (
+        value !== undefined &&
+        value !== null &&
+        value.toLocaleString().length > 0
+      ) {
+        type(value.toLocaleString());
+      } else {
+        type(defaultText);
+      }
+      cursor = false;
+    });
+  });
+
   async function type(value: String) {
+    await mutex.lock();
     await new Promise((resolve) => setTimeout(resolve, animationDelay * 1000));
     // erase the current text
     // leave the first character, otherwise the text block will collapse
@@ -48,30 +69,8 @@
       }
       await new Promise((resolve) => setTimeout(resolve, typingSpeed * 1000));
     }
+    mutex.unlock();
   }
-
-  onMount(async () => {
-    const textResolved = await Promise.race([
-      text,
-      new Promise((resolve) =>
-        setTimeout(() => resolve(null), typingSpeed * 1000)
-      ),
-    ]);
-    if (!textResolved) {
-      await type(placeholder);
-    }
-    const value = await text;
-    if (
-      value !== undefined &&
-      value !== null &&
-      value.toLocaleString().length > 0
-    ) {
-      await type(value.toLocaleString());
-    } else {
-      await type(defaultText);
-    }
-    cursor = false;
-  });
 </script>
 
 {currentText}{#if cursor}<span class="cursor">{cursorSymbol}</span>{/if}

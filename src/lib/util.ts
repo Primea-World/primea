@@ -86,7 +86,6 @@ export async function userName(
   user?: User | null,
   username?: Promise<string | null> | null,
 ): Promise<string> {
-
   return (
     user?.app_metadata.parallel_account?.username ??
     await username ??

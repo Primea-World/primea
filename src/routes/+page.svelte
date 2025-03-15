@@ -6,7 +6,6 @@
   import Typewriter from "$lib/Typewriter.svelte";
   import {relativeTimeDifference} from "$lib/util";
   import {fade} from "svelte/transition";
-  import {linear} from "svelte/easing";
   import type {PrimingParagonData} from "./priming/+server.js";
   import {onMount} from "svelte";
   import {SvelteMap} from "svelte/reactivity";

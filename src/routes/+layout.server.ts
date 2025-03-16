@@ -5,7 +5,8 @@ import { PARALLEL_PGS_URL, type ParallelPGSAccount } from "$lib/parallelPGSAccou
 import { PARALLEL_PAS_URL, type ParallelPasProfile } from "$lib/parallelPASProfile";
 
 
-export const load: LayoutServerLoad = async ({ locals: { supabase }, cookies, fetch }) => {
+export const load: LayoutServerLoad = async ({ locals: { supabase }, cookies, fetch, depends }) => {
+  depends('supabase:auth');
 
   const nowUTC = new Date().toUTCString();
   const season = supabase
@@ -21,7 +22,6 @@ export const load: LayoutServerLoad = async ({ locals: { supabase }, cookies, fe
     });
 
   const { data: { user } } = await supabase.auth.getUser();
-  // console.log("server user", user);
   let parallelAuth: ParallelToken | null = user?.user_metadata.parallel;
   let account: Promise<ParallelProfile> | undefined = undefined;
   let pasProfile: Promise<ParallelPasProfile> | undefined = undefined;

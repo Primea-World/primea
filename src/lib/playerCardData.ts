@@ -15,8 +15,8 @@ interface UplinkPanelParameters {
 
 interface MatchesDetailParameters {
   totalMatches: PromiseLike<Database["public"]["Tables"]["matches"]["Row"][] | null>;
-  pasProfile: Promise<ParallelPasProfile> | null;
-  account: Promise<ParallelProfile> | null;
+  pasProfile: Promise<ParallelPasProfile> | undefined | null;
+  account: Promise<ParallelProfile> | undefined | null;
 }
 
 

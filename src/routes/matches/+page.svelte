@@ -110,7 +110,7 @@
           }
           // for each part of the chunk (+overflow)
           // parse the part of the chunk and add it to matches
-          text.forEach((element) => {
+          text.forEach(async (element) => {
             const game: ParallelMatchOverview = JSON.parse(element);
             if (game.player_one_name === account.username) {
               game.player_one_id = account.account_id;
@@ -120,30 +120,22 @@
             if (game.winner_name === account.username) {
               game.winner_id = account.account_id;
             }
-            fetched.push(game);
-          });
-        }
-        if (fetched.length > 0) {
-          await supabase.from("matches").upsert(
-            fetched.map((match) => ({
-              ...match,
-              player_one_deck_paragon:
-                PARAGON_NAMES.find((paragon) =>
-                  match.player_one_deck_paragon.startsWith(paragon)
-                ) ?? "unknown",
-              player_two_deck_paragon:
-                PARAGON_NAMES.find((paragon) =>
-                  match.player_two_deck_paragon.startsWith(paragon)
-                ) ?? "unknown",
-              game_end_time: new Date(match.game_end_time).toISOString(),
-              game_start_time: new Date(match.game_start_time).toISOString(),
-            })),
-            {
-              count: "exact",
-            }
-          );
-          fetched.forEach((match) => {
-            matches.add(match);
+            matches.add(game);
+            await supabase.from("matches").upsert([
+              {
+                ...game,
+                player_one_deck_paragon:
+                  PARAGON_NAMES.find((paragon) =>
+                    game.player_one_deck_paragon.startsWith(paragon)
+                  ) ?? "unknown",
+                player_two_deck_paragon:
+                  PARAGON_NAMES.find((paragon) =>
+                    game.player_two_deck_paragon.startsWith(paragon)
+                  ) ?? "unknown",
+                game_end_time: new Date(game.game_end_time).toISOString(),
+                game_start_time: new Date(game.game_start_time).toISOString(),
+              },
+            ]);
           });
         }
       });

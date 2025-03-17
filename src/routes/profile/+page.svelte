@@ -138,7 +138,7 @@
             {/if}
           {/await}
           <img src="/parallels/parallel.svg" alt="parallel" />
-          <h2 data-label="// {title}">
+          <h2 data-label={title}>
             <Typewriter
               text={account?.then(
                 (parallelProfile) => parallelProfile.django_profile.username
@@ -163,7 +163,6 @@
                 },
               });
               invalidate("supabase:auth");
-              // window.location.reload();
             }}
           >
             UNLINK ACCOUNT
@@ -194,7 +193,7 @@
                 <Typewriter
                   text={account?.then(
                     (parallelProfile) =>
-                      parallelProfile.equipped_skeleton_keys?.[0].type
+                      parallelProfile.equipped_skeleton_keys?.[0]?.type
                   )}
                   defaultText="not equipped"
                 />

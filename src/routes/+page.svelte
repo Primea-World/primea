@@ -81,11 +81,11 @@
 <div class="parallel-summaries">
   {#each paragonMap as [key, value]}
     {@const parallel = Parallel.fromString(key)}
-    {@const total_count = value.values().reduce((acc, val) => {
+    {@const total_count = [...value.entries()].reduce((acc, [_, val]) => {
       acc += val.totalGames365 ?? 0;
       return acc;
     }, 0)}
-    {@const win_count = value.values().reduce((acc, val) => {
+    {@const win_count = [...value.entries()].reduce((acc, [_, val]) => {
       acc += val.totalWins365 ?? 0;
       return acc;
     }, 0)}

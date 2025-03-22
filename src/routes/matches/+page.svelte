@@ -2,19 +2,18 @@
   import {onMount} from "svelte";
   import {SvelteSet} from "svelte/reactivity";
   import {
+    fromJSON,
     toParallelMatchOverview,
+    toRow,
     type ParallelMatchOverview,
   } from "$lib/parallelMatchOverview.js";
-  import {MONTHS, PARAGON_NAMES, relativeTimeDifference} from "$lib/util.js";
-  import {Paragon} from "$lib/parallels/parallel.js";
-  import {page} from "$app/state";
+  import {MONTHS, relativeTimeDifference} from "$lib/util.js";
   import {fade} from "svelte/transition";
   import Typewriter from "$lib/Typewriter.svelte";
 
   const {data} = $props();
-  const {supabase, parallelAuth, account, pgsAccount, lastMatch} =
+  const {supabase, parallelAuth, account, pgsAccount, lastMatch, matchData} =
     $derived(data);
-  const {matchData} = $derived(page.data);
   const totalMatches = $derived(matchData?.totalMatches);
 
   $effect(() => {
@@ -29,7 +28,7 @@
     });
   });
 
-  let matches = new SvelteSet<ParallelMatchOverview>();
+  let matches = $state(new SvelteSet<ParallelMatchOverview>());
 
   function matchTime(match: ParallelMatchOverview) {
     return `${MONTHS.get(match.game_start_time.getMonth())} ${match.game_start_time.getDate().toString().padStart(2, "0")} ${(
@@ -96,7 +95,6 @@
         const reader = resp.body?.getReader();
         const textDecoder = new TextDecoder();
         let overflow = "";
-        let fetched: ParallelMatchOverview[] = [];
         while (true) {
           const {done, value} = await reader!.read();
           if (done) {
@@ -111,7 +109,7 @@
           // for each part of the chunk (+overflow)
           // parse the part of the chunk and add it to matches
           text.forEach(async (element) => {
-            const game: ParallelMatchOverview = JSON.parse(element);
+            const game = fromJSON(element);
             if (game.player_one_name === account.username) {
               game.player_one_id = account.account_id;
             } else if (game.player_two_name === account.username) {
@@ -121,21 +119,7 @@
               game.winner_id = account.account_id;
             }
             matches.add(game);
-            await supabase.from("matches").upsert([
-              {
-                ...game,
-                player_one_deck_paragon:
-                  PARAGON_NAMES.find((paragon) =>
-                    game.player_one_deck_paragon.startsWith(paragon)
-                  ) ?? "unknown",
-                player_two_deck_paragon:
-                  PARAGON_NAMES.find((paragon) =>
-                    game.player_two_deck_paragon.startsWith(paragon)
-                  ) ?? "unknown",
-                game_end_time: new Date(game.game_end_time).toISOString(),
-                game_start_time: new Date(game.game_start_time).toISOString(),
-              },
-            ]);
+            await supabase.from("matches").upsert([toRow(game)]);
           });
         }
       });
@@ -161,12 +145,8 @@
       </div>
     {:else}
       {#each matches as match (match.match_id)}
-        {@const playerOneParagon = Paragon.fromString(
-          match.player_one_deck_paragon
-        )}
-        {@const playerTwoParagon = Paragon.fromString(
-          match.player_two_deck_paragon
-        )}
+        {@const playerOneParagon = match.player_one_deck_paragon}
+        {@const playerTwoParagon = match.player_two_deck_paragon}
         {@const onPlayText =
           match.player_one_id == account?.account_uuid
             ? "on the play"
@@ -176,8 +156,9 @@
             {#if account?.account_uuid == match.player_one_id}
               <img
                 class="paragon"
-                src="/paragons/{match.player_one_deck_paragon}.webp"
-                alt={match.player_one_deck_paragon}
+                src="/paragons/{match.player_one_deck_paragon
+                  .CamelCaseName}.webp"
+                alt={match.player_one_deck_paragon.name}
               />
               <div>
                 <div class="username">{match.player_one_name}</div>
@@ -194,8 +175,9 @@
             {:else}
               <img
                 class="paragon"
-                src="/paragons/{match.player_two_deck_paragon}.webp"
-                alt={match.player_two_deck_paragon}
+                src="/paragons/{match.player_two_deck_paragon
+                  .CamelCaseName}.webp"
+                alt={match.player_two_deck_paragon.name}
               />
               <div>
                 <div class="username">{match.player_two_name}</div>
@@ -253,8 +235,9 @@
               </div>
               <img
                 class="paragon"
-                src="/paragons/{match.player_two_deck_paragon}.webp"
-                alt={match.player_two_deck_paragon}
+                src="/paragons/{match.player_two_deck_paragon
+                  .CamelCaseName}.webp"
+                alt={match.player_two_deck_paragon.name}
               />
             {:else}
               <div>
@@ -275,8 +258,9 @@
               </div>
               <img
                 class="paragon"
-                src="/paragons/{match.player_one_deck_paragon}.webp"
-                alt={match.player_one_deck_paragon}
+                src="/paragons/{match.player_one_deck_paragon
+                  .CamelCaseName}.webp"
+                alt={match.player_one_deck_paragon.name}
               />
             {/if}
           </div>

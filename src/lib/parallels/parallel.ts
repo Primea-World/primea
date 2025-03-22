@@ -1,8 +1,17 @@
+import type { Database } from "$lib/database.types";
+
+type ParallelName = "Augencore" | "Earthen" | "Kathari" | "Marcolian" | "Shroud" | "Universal";
+type LowercaseParallelName = "augencore" | "earthen" | "kathari" | "marcolian" | "shroud" | "universal";
+
 abstract class Parallel {
-  static title: string;
+  static title: ParallelName;
   static color: string;
 
-  static fromString(str: string): typeof Parallel {
+  static get lowercaseName(): LowercaseParallelName {
+    return this.title.toLocaleLowerCase() as LowercaseParallelName;
+  }
+
+  static fromString(str: Database["public"]["Enums"]["parallel"]): typeof Parallel {
     switch (str.toLocaleLowerCase()) {
       case "augencore":
         return Augencore;
@@ -23,27 +32,27 @@ abstract class Parallel {
 
 
 class Augencore extends Parallel {
-  static title = "Augencore";
+  static title: ParallelName = "Augencore";
   static color = "#FF7432";
 }
 class Earthen extends Parallel {
-  static title = "Earthen";
+  static title: ParallelName = "Earthen";
   static color = "#49BC31";
 }
 class Kathari extends Parallel {
-  static title = "Kathari";
+  static title: ParallelName = "Kathari";
   static color = "#1E90DD";
 }
 class Marcolian extends Parallel {
-  static title = "Marcolian";
+  static title: ParallelName = "Marcolian";
   static color = "#E20A1A";
 }
 class Shroud extends Parallel {
-  static title = "Shroud";
+  static title: ParallelName = "Shroud";
   static color = "#6438C6";
 }
 class Universal extends Parallel {
-  static title = "Universal";
+  static title: ParallelName = "Universal";
   static color = "#FFFFFFB3";
 }
 
@@ -57,6 +66,10 @@ abstract class Paragon {
     return this.name?.replaceAll(' ', '') ?? "";
   }
 
+  static get CamelCaseName(): Database["public"]["Enums"]["paragon_name"] {
+    return this.name.replaceAll(" ", "") as Database["public"]["Enums"]["paragon_name"];
+  }
+
   static fromString(str: string): typeof Paragon {
     switch (str) {
       case "Jahn":
@@ -64,10 +77,13 @@ abstract class Paragon {
       case "Arak":
         return Arak;
       case "Gaffar":
+      case "GaffarArbiterOfEarth":
         return Gaffar;
       case "Lemieux":
+      case "LemieuxMasterCommando":
         return Lemieux;
       case "CatherineLapointe":
+      case "CatherineLapointeTheMadGeneral":
         return CatherineLapointe;
       case "ArmouredDivisionHQ":
         return ArmouredDivisionHQ;
@@ -80,14 +96,17 @@ abstract class Paragon {
       case "JuggernautWorkshop":
         return JuggernautWorkshop;
       case "Brand":
+      case "BrandStewardEternal":
         return Brand;
       case "Niamh":
+      case "NiamhWielderofFaith":
         return Niamh;
       case "NewDawn":
         return NewDawn;
       case "Shoshanna":
         return Shoshanna;
       case "Nehemiah":
+      case "NehemiahDefenderOfEarth":
         return Nehemiah;
       default:
         return Unknown;

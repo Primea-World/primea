@@ -12,7 +12,7 @@
   import Typewriter from "./Typewriter.svelte";
   import type {User} from "@supabase/supabase-js";
   import type {Database} from "./database.types";
-  import {userName} from "./util";
+  import {relativeTimeDifference, userName} from "./util";
   import type {ParallelPGSAccount} from "./parallelPGSAccount";
   import type {ParallelProfile} from "./parallelProfile";
 
@@ -89,13 +89,24 @@
                 <Typewriter text={userName(user, username)} />
               </b>
             </div>
-            <div class="season text-ellipsis">
-              SEASON: <b>
-                <Typewriter
-                  text={season?.then((seasonData) => seasonData?.name)}
-                />
-              </b>
-            </div>
+            {#await season then seasonData}
+              <div class="season text-ellipsis">
+                <span class="text-ellipsis">
+                  SEASON: <b
+                    data-label="ends {!!seasonData
+                      ? relativeTimeDifference(
+                          Date.now(),
+                          new Date(seasonData?.season_end).getTime()
+                        )
+                      : null}"
+                  >
+                    <Typewriter
+                      text={season?.then((seasonData) => seasonData?.name)}
+                    />
+                  </b>
+                </span>
+              </div>
+            {/await}
             {#await seasonParallel then parallel}
               {#if !!parallel}
                 <span id="season-parallel">
@@ -127,6 +138,19 @@
     }
     .stats-column {
       width: 40%;
+    }
+  }
+
+  .season {
+    position: relative;
+    b::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 6.25rem;
+      bottom: -1rem;
+      font-size: medium;
+      font-weight: 900;
+      color: var(--text-dim);
     }
   }
 
@@ -234,5 +258,13 @@
   .stats-header {
     justify-content: space-between;
     padding: 1em 0;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .stats-header {
+      display: none;
+    }
+
+    /* TODO: create a mobile-friendly size here */
   }
 </style>
